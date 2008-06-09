@@ -154,6 +154,68 @@ void midiSendTuneRequest(void){
 	midiSendByte(MIDI_TUNEREQUEST);
 }
 
+void midiInitMergeState(midiMergeState_t * state){
+	state->count = 0;
+	state->lastStatus = 0;
+	state->lastReturn = true;
+}
+
+bool midiMerge(uint8_t inByte, midiMergeState_t * state){
+	bool ret = false;
+	if(inByte & MIDI_STATUSMASK){
+		//if it is realtime it is only a one inByte message, should go through but
+		//doesn't affect the current state 
+		//(>= 0xF8, .. it'll always be less than 0xFF)
+		if(inByte >= 0xF8){
+			ret = state->lastReturn;
+		} else if(inByte == MIDI_TUNEREQUEST || inByte == SYSEX_END){
+			//tune request is just 1 inByte
+			//sysex end indicates that we're done with a sysex dump
+			state->lastStatus = 0;
+			ret = true;
+		} else {
+			if(inByte >= 0xF0)
+				state->lastStatus = inByte;
+			else 
+				state->lastStatus = inByte & ~MIDI_CHANMASK;
+			state->count = 0;
+		}
+	} else {
+		switch(state->lastStatus){
+			case 0:
+				//XXX this should never happen!
+				break;
+			//one data byte messages
+			case MIDI_CHANPRESSURE:
+			case MIDI_PROGCHANGE:
+			case MIDI_SONGSELECT:
+				ret = true;
+				state->lastStatus = 0;
+				break;
+			//two data byte messages
+			case MIDI_CC:
+			case MIDI_NOTEON:
+			case MIDI_NOTEOFF:
+			case MIDI_AFTERTOUCH:
+			case MIDI_PITCHBEND:
+			case MIDI_SONGPOSITION:
+			case MIDI_TC_QUATERFRAME:
+				if(state->count > 0){
+					state->lastStatus = 0;
+					ret = true;
+				} else
+					state->count += 1;
+				break;
+			default:
+				break;
+		};
+	}
+	//store the last return value
+	state->lastReturn = ret;
+	midiSendByte(inByte);
+	return ret;
+}
+
 #endif
 
 #ifdef MIDI_BITPACKING

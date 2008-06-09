@@ -96,6 +96,17 @@ void midiSendSongPosition(uint16_t pos);
 void midiSendSongSelect(uint8_t song);
 inline void midiSendTuneRequest(void);
 
+typedef struct {
+	uint8_t count;
+	uint8_t lastStatus;
+	bool lastReturn;
+} midiMergeState_t;
+
+void midiInitMergeState(midiMergeState_t * state);
+//sends data to the output, a true value indicates that it is safe to send midi
+//data [ie if you use midiSendCC you won't be sending data mid midi packet]
+bool midiMerge(uint8_t byte, midiMergeState_t * state);
+
 #endif
 
 #ifdef MIDI_BITPACKING

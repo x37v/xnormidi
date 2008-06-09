@@ -24,11 +24,11 @@ int main(void) {
 	//and output set up
 	midiInit(MIDI_CLOCK_RATE, true, true);
 
-	//enable interrupts
-	sei();
-
 	//send a CC message on channel 1, cc # 12, value 3
 	midiSendCC(0,12,3);
+
+	//enable interrupts
+	sei();
 
 	//loop, we're just echoing
 	while(1);
