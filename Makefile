@@ -36,6 +36,7 @@ dist: clean
 
 post: dist
 	scp ${DISTDIR}.tar.gz alex@x37v.info:public_html/microcontroller/avr-midi/files/
+	scp main.c alex@x37v.info:public_html/microcontroller/avr-midi/
 
 .c.o:
 	@echo CC $<
