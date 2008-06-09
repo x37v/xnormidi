@@ -12,6 +12,7 @@ volatile uint8_t cnt;
 MIDI_IN_ISR {
 	uint8_t inByte;
 	inByte = MIDI_IN_GET_BYTE;
+	//display the byte count
 	cnt++;
 	PORTB = ~cnt;
 	//echo
@@ -20,6 +21,7 @@ MIDI_IN_ISR {
 
 int main(void) {
 
+	//init the byte count
 	cnt = 0;
 
 	//PORTB is an output.. displays number of bytes received
