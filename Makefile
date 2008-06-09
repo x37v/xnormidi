@@ -11,12 +11,24 @@ VERSION = 0.1
 DISTDIR = avr-midi.${VERSION}
 
 #-------------------
-current: echo.hex
+current: basic.hex
 #-------------------
 
+BASICSRC = basic.c midi.c 
 ECHOSRC = echo.c midi.c 
 
+BASICOBJ = ${BASICSRC:.c=.o}
 ECHOOBJ = ${ECHOSRC:.c=.o}
+
+basic.bin : basic.out
+	$(OBJCOPY) -R .eeprom -O binary basic.out basic.bin 
+
+basic.hex : basic.out 
+	$(OBJCOPY) -R .eeprom -O ihex basic.out basic.hex 
+
+basic.out : $(BASICOBJ)
+	$(CC) $(CFLAGS) -o basic.out -Wl,-Map,basic.map $(BASICOBJ)
+
 
 echo.bin : echo.out
 	$(OBJCOPY) -R .eeprom -O binary echo.out echo.bin 
@@ -27,6 +39,7 @@ echo.hex : echo.out
 echo.out : $(ECHOOBJ)
 	$(CC) $(CFLAGS) -o echo.out -Wl,-Map,echo.map $(ECHOOBJ)
 
+
 dist: clean
 	mkdir -p ${DISTDIR}
 	cp -R COPYING Makefile *.c *.h README ${DISTDIR}
@@ -35,14 +48,17 @@ dist: clean
 
 post: dist
 	scp ${DISTDIR}.tar.gz alex@x37v.info:public_html/microcontroller/avr-midi/files/
-	scp main.c alex@x37v.info:public_html/microcontroller/avr-midi/
+	scp basic.c alex@x37v.info:public_html/microcontroller/avr-midi/
 
 .c.o:
 	@echo CC $<
 	@$(CC) -c $(CFLAGS) -Os -o $*.o $<
 
-# you need to erase first before loading the program.
-# load (program) the software into the eeprom:
+# load (program) the software
+load_basic: basic.hex
+	$(UISP) --erase
+	$(UISP) --upload --verify if=basic.hex -v=3 --hash=32
+
 load_echo: echo.hex
 	$(UISP) --erase
 	$(UISP) --upload --verify if=echo.hex -v=3 --hash=32
