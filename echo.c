@@ -3,6 +3,9 @@
 #include <inttypes.h>
 #include "midi.h"
 
+//this example simply echoes midi data that arrives at the input to the output
+//it also counts the amount of bytes received and displays that on PORTB
+
 #define MIDI_CLOCK_RATE MIDI_CLOCK_12MHZ_OSC
 
 //count the number of bytes received
