@@ -5,8 +5,8 @@ It is licenced with the GPL v3 licence, see the file "COPYING" for more info.
 
 Please send me bug info, bug fixes, general improvements, etc.  alex@x37v.info
 
-The important files are "midi.c" and "midi.h".  I have provided a main.c and
-Makefile as an example of how to use avr-midi for the atmega16.  This should
+The important files are "midi.c" and "midi.h".  I have provided some examples
+and Makefile to show you how to use avr-midi for the atmega16.  This should
 work for other avr chips [maybe with some modification] as well, but has only
 been tested on the atmega16.
 

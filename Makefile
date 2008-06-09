@@ -11,22 +11,21 @@ VERSION = 0.1
 DISTDIR = avr-midi.${VERSION}
 
 #-------------------
-current: main.hex
+current: echo.hex
 #-------------------
 
-SRC = main.c \
-		midi.c 
+ECHOSRC = echo.c midi.c 
 
-OBJ = ${SRC:.c=.o}
+ECHOOBJ = ${ECHOSRC:.c=.o}
 
-main.bin : main.out
-	$(OBJCOPY) -R .eeprom -O binary main.out main.bin 
+echo.bin : echo.out
+	$(OBJCOPY) -R .eeprom -O binary echo.out echo.bin 
 
-main.hex : main.out 
-	$(OBJCOPY) -R .eeprom -O ihex main.out main.hex 
+echo.hex : echo.out 
+	$(OBJCOPY) -R .eeprom -O ihex echo.out echo.hex 
 
-main.out : $(OBJ)
-	$(CC) $(CFLAGS) -o main.out -Wl,-Map,main.map $(OBJ)
+echo.out : $(ECHOOBJ)
+	$(CC) $(CFLAGS) -o echo.out -Wl,-Map,echo.map $(ECHOOBJ)
 
 dist: clean
 	mkdir -p ${DISTDIR}
@@ -44,9 +43,9 @@ post: dist
 
 # you need to erase first before loading the program.
 # load (program) the software into the eeprom:
-load: main.hex
+load_echo: echo.hex
 	$(UISP) --erase
-	$(UISP) --upload --verify if=main.hex -v=3 --hash=32
+	$(UISP) --upload --verify if=echo.hex -v=3 --hash=32
 
 fuse_mega16:
 	$(UISP) --wr_fuse_l=0x9f --wr_fuse_h=0xd0

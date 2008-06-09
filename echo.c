@@ -5,28 +5,30 @@
 
 #define MIDI_CLOCK_RATE MIDI_CLOCK_12MHZ_OSC
 
+//count the number of bytes received
+volatile uint8_t cnt;
+
 //the midi input interrupt handler
 MIDI_IN_ISR {
 	uint8_t inByte;
 	inByte = MIDI_IN_GET_BYTE;
-	//visually indicate that the stuff happened
-	PORTB = 0;
+	cnt++;
+	PORTB = ~cnt;
 	//echo
 	midiSendByte(inByte);
 }
 
 int main(void) {
 
-	//PORTB is an output.. 4 LEDS should be lighted
+	cnt = 0;
+
+	//PORTB is an output.. displays number of bytes received
 	DDRB = 0xFF;
-	PORTB = 0xF0;
+	PORTB = ~cnt;
 
 	//init midi, give the clock rate setting, indicate that we want both input
 	//and output set up
 	midiInit(MIDI_CLOCK_RATE, true, true);
-
-	//send a CC message on channel 1, cc # 12, value 3
-	midiSendCC(0,12,3);
 
 	//enable interrupts
 	sei();
