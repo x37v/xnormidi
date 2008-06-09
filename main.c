@@ -17,6 +17,7 @@ MIDI_IN_ISR {
 
 int main(void) {
 
+	//PORTB is an output.. 4 LEDS should be lighted
 	DDRB = 0xFF;
 	PORTB = 0xF0;
 
@@ -30,7 +31,7 @@ int main(void) {
 	//enable interrupts
 	sei();
 
-	//loop, we're just echoing
+	//busy loop, we're just echoing in the interrupt
 	while(1);
 
 	return 0;
