@@ -7,6 +7,9 @@ PORT=/dev/ttyUSB0
 PART=ATmega16
 UISP = uisp -dprog=stk500 -dserial=/dev/ttyUSB0 -dpart=$(PART)
 
+VERSION = 0.1
+DISTDIR = avr-midi.${VERSION}
+
 #-------------------
 current: main.hex
 #-------------------
@@ -24,6 +27,15 @@ main.hex : main.out
 
 main.out : $(OBJ)
 	$(CC) $(CFLAGS) -o main.out -Wl,-Map,main.map $(OBJ)
+
+dist: clean
+	mkdir -p ${DISTDIR}
+	cp -R COPYING Makefile *.c *.h README ${DISTDIR}
+	tar -czf ${DISTDIR}.tar.gz --exclude=".svn" ${DISTDIR}
+	rm -rf ${DISTDIR}
+
+post: dist
+	scp ${DISTDIR}.tar.gz alex@x37v.info:public_html/microcontroller/avr-midi/files/
 
 .c.o:
 	@echo CC $<
@@ -43,5 +55,5 @@ check_fuse:
 
 #-------------------
 clean:
-	rm -f *.o *.map *.out *.hex
+	rm -f *.o *.map *.out *.hex *.tar.gz
 #-------------------
