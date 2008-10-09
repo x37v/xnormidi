@@ -47,8 +47,8 @@ dist: clean
 	rm -rf ${DISTDIR}
 
 post: dist
-	scp ${DISTDIR}.tar.gz alex@x37v.info:public_html/microcontroller/avr-midi/files/
-	scp basic.c alex@x37v.info:public_html/microcontroller/avr-midi/
+	scp ${DISTDIR}.tar.gz x37v.info:x37v.info/projects/microcontroller/avr-midi/files/
+	scp basic.c x37v.info:x37v.info/projects/microcontroller/avr-midi/
 
 .c.o:
 	@echo CC $<
