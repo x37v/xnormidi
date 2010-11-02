@@ -10,10 +10,6 @@ and Makefile to show you how to use avr-midi for the atmega16.  This should
 work for other avr chips [maybe with some modification] as well, but has only
 been tested on the atmega16.
 
-At the moment I've only really tested the CC, Notes, Program Change, Pitch
-bend, both input and output, bitpacking and unpacking.. SYSEX messages...
-and only on the mega16.
-
 my website is here:
 http://www.x37v.info
 
