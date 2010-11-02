@@ -52,7 +52,7 @@ inline void midi_send_stop(MidiDevice * device);
 inline void midi_send_activesense(MidiDevice * device);
 inline void midi_send_reset(MidiDevice * device);
 
-void midi_tcquaterframe(MidiDevice * device, uint8_t time); //range 0..16383
+void midi_send_tcquaterframe(MidiDevice * device, uint8_t time); //range 0..16383
 void midi_send_songposition(MidiDevice * device, uint16_t pos);
 void midi_send_songselect(MidiDevice * device, uint8_t song);
 inline void midi_send_tunerequest(MidiDevice * device);

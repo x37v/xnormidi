@@ -113,7 +113,7 @@ void midi_send_reset(MidiDevice * device){
 	device->one_byte_func(MIDI_RESET);
 }
 
-void midi_tcquaterframe(MidiDevice * device, uint8_t time){
+void midi_send_tcquaterframe(MidiDevice * device, uint8_t time){
 	device->two_byte_func(
 			MIDI_TC_QUATERFRAME,
 			time & 0x7F);
