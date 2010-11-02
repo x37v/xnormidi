@@ -7,7 +7,7 @@ PORT=/dev/ttyUSB0
 PART=ATmega8
 UISP = uisp -dprog=stk500 -dserial=/dev/ttyUSB0 -dpart=$(PART)
 
-VERSION = 0.1
+VERSION = 0.2.develop
 DISTDIR = avr-midi.${VERSION}
 
 #-------------------
