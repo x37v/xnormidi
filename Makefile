@@ -15,7 +15,6 @@ current: basic.hex
 #-------------------
 
 BASICSRC = basic.c midi.c 
-ECHOSRC = echo.c midi.c 
 
 BASICOBJ = ${BASICSRC:.c=.o}
 ECHOOBJ = ${ECHOSRC:.c=.o}
@@ -35,20 +34,10 @@ basic.out : $(BASICOBJ)
 	$(CC) $(CFLAGS) -o basic.out -Wl,-Map,basic.map $(BASICOBJ)
 
 
-echo.bin : echo.out
-	$(OBJCOPY) -R .eeprom -O binary echo.out echo.bin 
-
-echo.hex : echo.out 
-	$(OBJCOPY) -R .eeprom -O ihex echo.out echo.hex 
-
-echo.out : $(ECHOOBJ)
-	$(CC) $(CFLAGS) -o echo.out -Wl,-Map,echo.map $(ECHOOBJ)
-
-
 dist: clean
 	mkdir -p ${DISTDIR}
 	cp -R COPYING Makefile *.c *.h README ${DISTDIR}
-	tar -czf ${DISTDIR}.tar.gz --exclude=".svn" ${DISTDIR}
+	tar -czf ${DISTDIR}.tar.gz ${DISTDIR}
 	rm -rf ${DISTDIR}
 
 post: dist
@@ -59,10 +48,6 @@ post: dist
 load_basic: basic.hex
 	$(UISP) --erase
 	$(UISP) --upload --verify if=basic.hex -v=3 --hash=32
-
-load_echo: echo.hex
-	$(UISP) --erase
-	$(UISP) --upload --verify if=echo.hex -v=3 --hash=32
 
 fuse_mega16:
 	$(UISP) --wr_fuse_l=0x9f --wr_fuse_h=0xd0

@@ -1,0 +1,6 @@
+*.o
+*.hex
+*.out
+*.map
+*.swp
+*.gz
