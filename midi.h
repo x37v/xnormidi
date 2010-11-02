@@ -24,9 +24,38 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-//midi uses the pins TX [to send] and RX [to receive] (USART)
+typedef void (* midi_one_byte_func_t)(uint8_t byte0);
+typedef void (* midi_two_byte_func_t)(uint8_t byte0, uint8_t byte1);
+typedef void (* midi_three_byte_func_t)(uint8_t byte0, uint8_t byte1, uint8_t byte2);
 
-#define MIDI_CLOCK_12MHZ_OSC 23
+//this is a struct that you create and populate in order to create a new midi
+//device [be it virtual or real]
+typedef struct _midi_device {
+	midi_one_byte_func_t one_byte_func;
+	midi_two_byte_func_t two_byte_func;
+	midi_three_byte_func_t three_byte_func;
+} MidiDevice;
+
+void midi_send_cc(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t val);
+void midi_send_noteon(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel);
+void midi_send_noteoff(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel);
+void midi_send_aftertouch(MidiDevice * device, uint8_t chan, uint8_t note_num, uint8_t amt); //range -8192, 8191
+void midi_send_pitchbend(MidiDevice * device, uint8_t chan, int16_t amt);
+void midi_send_programchange(MidiDevice * device, uint8_t chan, uint8_t num);
+void midi_send_channelpressure(MidiDevice * device, uint8_t chan, uint8_t amt);
+
+inline void midi_send_clock(MidiDevice * device);
+inline void midi_send_tick(MidiDevice * device);
+inline void midi_send_start(MidiDevice * device);
+inline void midi_send_continue(MidiDevice * device);
+inline void midi_send_stop(MidiDevice * device);
+inline void midi_send_activesense(MidiDevice * device);
+inline void midi_send_reset(MidiDevice * device);
+
+void midi_tcquaterframe(MidiDevice * device, uint8_t time); //range 0..16383
+void midi_send_songposition(MidiDevice * device, uint16_t pos);
+void midi_send_songselect(MidiDevice * device, uint8_t song);
+inline void midi_send_tunerequest(MidiDevice * device);
 
 #define SYSEX_BEGIN 0xF0
 #define SYSEX_END 0xF7
@@ -61,68 +90,6 @@
 
 //This ID is for educational or development use only
 #define SYSEX_EDUMANUFID 0x7D
-
-//works for ATmega16, ATmega32, ATmega323, ATmega8
-#define MIDI_IN_ISR ISR(USART_RXC_vect)
-#define MIDI_IN_GET_BYTE UDR
-
-//give the UBRR value, init output, init input
-//it should be set so that the baud rate is 31.25 Kbaud [+/- 1%]
-void midiInit(uint16_t clockScale, bool out, bool in);
-void midiSendByte(uint8_t inByte);
-
-#ifndef MIDI_BASIC
-
-void midiSendCC(uint8_t chan, uint8_t num, uint8_t val);
-void midiSendNoteOn(uint8_t chan, uint8_t num, uint8_t vel);
-void midiSendNoteOff(uint8_t chan, uint8_t num, uint8_t vel);
-void midiSendAfterTouch(uint8_t chan, uint8_t note_num, uint8_t amt);
-//range -8192, 8191
-void midiSendPitchBend(uint8_t chan, int16_t amt);
-void midiSendProgramChange(uint8_t chan, uint8_t num);
-void midiSendChannelPressure(uint8_t chan, uint8_t amt);
-
-inline void midiSendClock(void);
-inline void midiSendTick(void);
-inline void midiSendStart(void);
-inline void midiSendContinue(void);
-inline void midiSendStop(void);
-inline void midiSendActiveSense(void);
-inline void midiSendReset(void);
-
-void midiTCQuaterFrame(uint8_t time);
-//range 0..16383
-void midiSendSongPosition(uint16_t pos);
-void midiSendSongSelect(uint8_t song);
-inline void midiSendTuneRequest(void);
-
-typedef struct {
-	uint8_t count;
-	uint8_t lastStatus;
-	bool lastReturn;
-} midiMergeState_t;
-
-void midiInitMergeState(midiMergeState_t * state);
-//sends data to the output, a true value indicates that it is safe to send midi
-//data [ie if you use midiSendCC you won't be sending data mid midi packet]
-bool midiMerge(uint8_t byte, midiMergeState_t * state);
-
-#endif
-
-#ifdef MIDI_BITPACKING
-
-//utils
-//this gives the number of bytes needed to pack a buffer of inSize bytes
-uint8_t midiPackedSize(uint8_t inSize);
-//this tells you how many bytes will result from inSize packed bytes, after unpacking
-uint8_t midiUnpackedSize(uint8_t inSize);
-
-//this packs bytes into midi sendable bytes [with he high bit set to zero]
-void midiBitPack(uint8_t *outputData, uint8_t *inputData, uint8_t inDataSize);
-//this unpacks 'packed' midi bytes into useable 8 bit bytes
-void midiBitUnpack(uint8_t *outputData, uint8_t *inputData, uint8_t inDataSize);
-
-#endif
 
 #endif
 
