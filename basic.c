@@ -29,20 +29,20 @@
 //this is the midi channel we'll be sending on.. 0 is midi channel 1
 #define MIDI_CHAN 0
 
-void midi_send_one_byte(uint8_t inByte){
-	// Wait for empty transmit buffer
-	while ( !(UCSRA & _BV(UDRE)) );
-	UDR = inByte;
-}
-
-void midi_send_two_byte(uint8_t inByte0, uint8_t inByte1){
-	midi_send_one_byte(inByte0);
-	midi_send_one_byte(inByte1);
-}
-
-void midi_send_three_byte(uint8_t inByte0, uint8_t inByte1, uint8_t inByte2){
-	midi_send_two_byte(inByte0, inByte1);
-	midi_send_one_byte(inByte2);
+void midi_send(uint8_t cnt, uint8_t inByte0, uint8_t inByte1, uint8_t inByte2){
+   //we always send the first byte
+	while ( !(UCSRA & _BV(UDRE)) ); // Wait for empty transmit buffer
+	UDR = inByte0;
+   //if cnt == 2 or 3 we send the send byte
+   if(cnt > 1) {
+      while ( !(UCSRA & _BV(UDRE)) ); // Wait for empty transmit buffer
+      UDR = inByte1;
+   }
+   //if cnt == 3 we send the third byte
+   if(cnt == 3) {
+      while ( !(UCSRA & _BV(UDRE)) ); // Wait for empty transmit buffer
+      UDR = inByte2;
+   }
 }
 
 void midi_init(uint16_t clockScale, bool out, bool in){
@@ -78,9 +78,7 @@ int main(void) {
 
 	//set up the device
 	MidiDevice device;
-	device.one_byte_func = midi_send_one_byte;
-	device.two_byte_func = midi_send_two_byte;
-	device.three_byte_func = midi_send_three_byte;
+	device.send_func = midi_send;
 
 	//PORTC is in input with internal pullups
 	DDRC = 0x00;

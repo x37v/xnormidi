@@ -24,18 +24,23 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-typedef void (* midi_one_byte_func_t)(uint8_t byte0);
-typedef void (* midi_two_byte_func_t)(uint8_t byte0, uint8_t byte1);
-typedef void (* midi_three_byte_func_t)(uint8_t byte0, uint8_t byte1, uint8_t byte2);
+typedef enum {
+   UNDEFINED = 0,
+   ONE = 1,
+   TWO = 2,
+   THREE = 3} midi_packet_length_t;
+
+//the function indicates the length of the packet type it is trying to send and
+//gives the bytes, all bytes beyond cnt should be ignored
+typedef void (* midi_send_func_t)(uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 
 //this is a struct that you create and populate in order to create a new midi
 //device [be it virtual or real]
 typedef struct _midi_device {
-	midi_one_byte_func_t one_byte_func;
-	midi_two_byte_func_t two_byte_func;
-	midi_three_byte_func_t three_byte_func;
+	midi_send_func_t send_func;
 } MidiDevice;
 
+//send
 void midi_send_cc(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t val);
 void midi_send_noteon(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel);
 void midi_send_noteoff(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel);
@@ -44,6 +49,7 @@ void midi_send_pitchbend(MidiDevice * device, uint8_t chan, int16_t amt);
 void midi_send_programchange(MidiDevice * device, uint8_t chan, uint8_t num);
 void midi_send_channelpressure(MidiDevice * device, uint8_t chan, uint8_t amt);
 
+//realtime
 inline void midi_send_clock(MidiDevice * device);
 inline void midi_send_tick(MidiDevice * device);
 inline void midi_send_start(MidiDevice * device);
@@ -52,6 +58,7 @@ inline void midi_send_stop(MidiDevice * device);
 inline void midi_send_activesense(MidiDevice * device);
 inline void midi_send_reset(MidiDevice * device);
 
+//more obscure
 void midi_send_tcquaterframe(MidiDevice * device, uint8_t time); //range 0..16383
 void midi_send_songposition(MidiDevice * device, uint16_t pos);
 void midi_send_songselect(MidiDevice * device, uint8_t song);

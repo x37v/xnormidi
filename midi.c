@@ -24,7 +24,7 @@
 void midi_send_cc(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t val){
 	//CC Status: 0xB0 to 0xBF where the low nibble is the MIDI channel.
 	//CC Data: Controller Num, Controller Val
-	device->three_byte_func(
+	device->send_func(3,
 			MIDI_CC | (chan & MIDI_CHANMASK),
 			num & 0x7F,
 			val & 0x7F);
@@ -32,7 +32,7 @@ void midi_send_cc(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t val){
 
 void midi_send_noteon(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel){
 	//Note Data: Note Num, Note Velocity
-	device->three_byte_func(
+	device->send_func(3,
 			MIDI_NOTEON | (chan & MIDI_CHANMASK),
 			num & 0x7F,
 			vel & 0x7F);
@@ -40,14 +40,14 @@ void midi_send_noteon(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t ve
 
 void midi_send_noteoff(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel){
 	//Note Data: Note Num, Note Velocity
-	device->three_byte_func(
+	device->send_func(3,
 			MIDI_NOTEOFF | (chan & MIDI_CHANMASK),
 			num & 0x7F,
 			vel & 0x7F);
 }
 
 void midi_send_aftertouch(MidiDevice * device, uint8_t chan, uint8_t note_num, uint8_t amt){
-	device->three_byte_func(
+	device->send_func(3,
 			MIDI_AFTERTOUCH | (chan & MIDI_CHANMASK),
 			note_num & 0x7F,
 			amt & 0x7F);
@@ -67,73 +67,77 @@ void midi_send_pitchbend(MidiDevice * device, uint8_t chan, int16_t amt){
 	} else {
 		uAmt = amt + 0x2000;
 	}
-	device->three_byte_func(
+	device->send_func(3,
 			MIDI_PITCHBEND | (chan & MIDI_CHANMASK),
 			uAmt & 0x7F,
 			(uAmt >> 7) & 0x7F);
 }
 
 void midi_send_programchange(MidiDevice * device, uint8_t chan, uint8_t num){
-	device->two_byte_func(
+	device->send_func(2,
 			MIDI_PROGCHANGE | (chan & MIDI_CHANMASK),
-			num & 0x7F);
+			num & 0x7F,
+         0);
 }
 
 void midi_send_channelpressure(MidiDevice * device, uint8_t chan, uint8_t amt){
-	device->two_byte_func(
+	device->send_func(2,
 			MIDI_CHANPRESSURE | (chan & MIDI_CHANMASK),
-			amt & 0x7F);
+			amt & 0x7F,
+         0);
 }
 
 void midi_send_clock(MidiDevice * device){
-	device->one_byte_func(MIDI_CLOCK);
+	device->send_func(1, MIDI_CLOCK, 0, 0);
 }
 
 void midi_send_tick(MidiDevice * device){
-	device->one_byte_func(MIDI_TICK);
+	device->send_func(1, MIDI_TICK, 0, 0);
 }
 
 void midi_send_start(MidiDevice * device){
-	device->one_byte_func(MIDI_START);
+	device->send_func(1, MIDI_START, 0, 0);
 }
 
 void midi_send_continue(MidiDevice * device){
-	device->one_byte_func(MIDI_CONTINUE);
+	device->send_func(1, MIDI_CONTINUE, 0, 0);
 }
 
 void midi_send_stop(MidiDevice * device){
-	device->one_byte_func(MIDI_STOP);
+	device->send_func(1, MIDI_STOP, 0, 0);
 }
 
 void midi_send_activesense(MidiDevice * device){
-	device->one_byte_func(MIDI_ACTIVESENSE);
+	device->send_func(1, MIDI_ACTIVESENSE, 0, 0);
 }
 
 void midi_send_reset(MidiDevice * device){
-	device->one_byte_func(MIDI_RESET);
+	device->send_func(1, MIDI_RESET, 0, 0);
 }
 
 void midi_send_tcquaterframe(MidiDevice * device, uint8_t time){
-	device->two_byte_func(
+	device->send_func(2,
 			MIDI_TC_QUATERFRAME,
-			time & 0x7F);
+			time & 0x7F,
+         0);
 }
 
 //XXX is this right?
 void midi_send_songposition(MidiDevice * device, uint16_t pos){
-	device->three_byte_func(
+	device->send_func(3,
 			MIDI_SONGPOSITION,
 			pos & 0x7F,
 			(pos >> 7) & 0x7F);
 }
 
 void midi_send_songselect(MidiDevice * device, uint8_t song){
-	device->two_byte_func(
+	device->send_func(2,
 			MIDI_SONGSELECT,
-			song & 0x7F);
+			song & 0x7F,
+         0);
 }
 
 void midi_send_tunerequest(MidiDevice * device){
-	device->one_byte_func(MIDI_TUNEREQUEST);
+	device->send_func(1, MIDI_TUNEREQUEST, 0, 0);
 }
 
