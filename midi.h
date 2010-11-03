@@ -25,7 +25,8 @@
 #include <stdbool.h>
 
 typedef enum {
-   UNDEFINED = 0,
+   UNDEFINED = -1,
+   ZERO = 0,
    ONE = 1,
    TWO = 2,
    THREE = 3} midi_packet_length_t;
@@ -39,6 +40,14 @@ typedef void (* midi_send_func_t)(uint8_t cnt, uint8_t byte0, uint8_t byte1, uin
 typedef struct _midi_device {
 	midi_send_func_t send_func;
 } MidiDevice;
+
+//general information [device independent]
+//returns true if the byte given is a midi status byte
+inline bool midi_is_statusbyte(uint8_t theByte);
+//returns true if the byte given is a realtime status byte
+inline bool midi_is_realtime(uint8_t theByte);
+//returns the length of the packet associated with the status byte given
+inline midi_packet_length_t midi_packet_length(uint8_t status);
 
 //send
 void midi_send_cc(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t val);

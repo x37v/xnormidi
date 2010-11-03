@@ -21,6 +21,45 @@
 
 #include "midi.h"
 
+bool midi_is_statusbyte(uint8_t theByte){
+   return (bool)(theByte & MIDI_STATUSMASK);
+}
+
+bool midi_is_realtime(uint8_t theByte){
+   return (theByte >= MIDI_CLOCK);
+}
+
+midi_packet_length_t midi_packet_length(uint8_t status){
+   switch(status & MIDI_STATUSMASK){
+      case MIDI_CC:
+      case MIDI_NOTEON:
+      case MIDI_NOTEOFF:
+      case MIDI_AFTERTOUCH:
+      case MIDI_PITCHBEND:
+      case MIDI_SONGPOSITION:
+         return THREE;
+      case MIDI_PROGCHANGE:
+      case MIDI_CHANPRESSURE:
+      case MIDI_SONGSELECT:
+      case MIDI_TC_QUATERFRAME:
+         return TWO;
+      case MIDI_CLOCK:
+      case MIDI_TICK:
+      case MIDI_START:
+      case MIDI_CONTINUE:
+      case MIDI_STOP:
+      case MIDI_ACTIVESENSE:
+      case MIDI_RESET:
+      case MIDI_TUNEREQUEST:
+         return ONE;
+      case SYSEX_END:
+         return ZERO;
+      case SYSEX_BEGIN:
+      default:
+         return UNDEFINED;
+   }
+}
+
 void midi_send_cc(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t val){
 	//CC Status: 0xB0 to 0xBF where the low nibble is the MIDI channel.
 	//CC Data: Controller Num, Controller Val
