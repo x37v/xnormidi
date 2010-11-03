@@ -60,6 +60,10 @@ midi_packet_length_t midi_packet_length(uint8_t status){
    }
 }
 
+void midi_send_byte(MidiDevice * device, uint8_t b){
+	device->send_func(1, b, 0, 0);
+}
+
 void midi_send_cc(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t val){
 	//CC Status: 0xB0 to 0xBF where the low nibble is the MIDI channel.
 	//CC Data: Controller Num, Controller Val

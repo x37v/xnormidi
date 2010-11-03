@@ -50,6 +50,7 @@ inline bool midi_is_realtime(uint8_t theByte);
 inline midi_packet_length_t midi_packet_length(uint8_t status);
 
 //send
+inline void midi_send_byte(MidiDevice * device, uint8_t b);
 void midi_send_cc(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t val);
 void midi_send_noteon(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel);
 void midi_send_noteoff(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel);
