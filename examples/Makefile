@@ -11,13 +11,16 @@ UISP = uisp -dprog=stk500 -dserial=/dev/ttyUSB0 -dpart=$(PART)
 current: basic.hex
 #-------------------
 
-BASICSRC = basic.c ../midi.c 
+BASICSRC = basic.c ../midi.c serial_midi.c
+SPITSRC  = spit.c ../midi.c serial_midi.c
 
 BASICOBJ = ${BASICSRC:.c=.o}
+SPITOBJ  = ${SPITSRC:.c=.o}
 
 .c.o:
 	@echo CC $<
 	@$(CC) -c $(CFLAGS) -Os -o $*.o $<
+
 
 basic.bin : basic.out
 	$(OBJCOPY) -R .eeprom -O binary basic.out basic.bin 
@@ -33,6 +36,21 @@ load_basic: basic.hex
 	$(UISP) --erase
 	$(UISP) --upload --verify if=basic.hex -v=3 --hash=32
 
+
+spit.bin : spit.out
+	$(OBJCOPY) -R .eeprom -O binary spit.out spit.bin 
+
+spit.hex : spit.out 
+	$(OBJCOPY) -R .eeprom -O ihex spit.out spit.hex 
+
+spit.out : $(SPITOBJ)
+	$(CC) $(CFLAGS) -o spit.out -Wl,-Map,spit.map $(SPITOBJ)
+
+load_spit: spit.hex
+	$(UISP) --erase
+	$(UISP) --upload --verify if=spit.hex -v=3 --hash=32
+
+
 fuse_mega16:
 	$(UISP) --wr_fuse_l=0x9f --wr_fuse_h=0xd0
 
@@ -46,3 +64,5 @@ check_fuse:
 clean:
 	rm -f *.o *.map *.out *.hex *.tar.gz
 #-------------------
+
+all: spit.hex basic.hex

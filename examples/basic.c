@@ -18,7 +18,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <inttypes.h>
-#include "midi.h"
+#include "serial_midi.h"
 
 #define MIDI_CLOCK_12MHZ_OSC 23
 #define MIDI_CLOCK_RATE MIDI_CLOCK_12MHZ_OSC
@@ -28,39 +28,6 @@
 
 //this is the midi channel we'll be sending on.. 0 is midi channel 1
 #define MIDI_CHAN 0
-
-void midi_send(uint8_t cnt, uint8_t inByte0, uint8_t inByte1, uint8_t inByte2){
-   //we always send the first byte
-	while ( !(UCSRA & _BV(UDRE)) ); // Wait for empty transmit buffer
-	UDR = inByte0;
-   //if cnt == 2 or 3 we send the send byte
-   if(cnt > 1) {
-      while ( !(UCSRA & _BV(UDRE)) ); // Wait for empty transmit buffer
-      UDR = inByte1;
-   }
-   //if cnt == 3 we send the third byte
-   if(cnt == 3) {
-      while ( !(UCSRA & _BV(UDRE)) ); // Wait for empty transmit buffer
-      UDR = inByte2;
-   }
-}
-
-void midi_init(uint16_t clockScale, bool out, bool in){
-	// Set baud rate
-	UBRRH = (uint8_t)(clockScale >> 8);
-	UBRRL = (uint8_t)(clockScale & 0xFF);
-	// Enable transmitter
-	if(out)
-		UCSRB |= _BV(TXEN);
-	if(in) {
-		//Enable receiver
-		//RX Complete Interrupt Enable  (user must provide routine)
-		UCSRB |= _BV(RXEN) | _BV(RXCIE);
-	}
-	//Set frame format: Async, 8data, 1 stop bit, 1 start bit, no parity
-	//needs to have URSEL set in order to write into this reg
-	UCSRC = _BV(URSEL) | _BV(UCSZ1) | _BV(UCSZ0);
-}
 
 int main(void) {
 	//index for looping
@@ -76,10 +43,6 @@ int main(void) {
 	uint8_t lastInput = 0;
 	uint8_t historyIndex = 0;
 
-	//set up the device
-	MidiDevice device;
-	device.send_func = midi_send;
-
 	//PORTC is in input with internal pullups
 	DDRC = 0x00;
 	PORTC = 0xFF;
@@ -89,7 +52,7 @@ int main(void) {
 		inputs[i] = 0;
 
 	//init midi, give the clock rate setting, indicate that we want only output
-	midi_init(MIDI_CLOCK_RATE, true, false);
+	MidiDevice * midi_device = serial_midi_init(MIDI_CLOCK_RATE, true, false);
 
 	while(1){
 
@@ -122,9 +85,9 @@ int main(void) {
 						//we don't do anything on up for the first two buttons
 						//send the appropriate midi data
 						if(i == 2){
-							midi_send_noteoff(&device, MIDI_CHAN, 64, 30);
+							midi_send_noteoff(midi_device, MIDI_CHAN, 64, 30);
 						} else if(i > 1)
-							midi_send_cc(&device, MIDI_CHAN, i - 3, 0);
+							midi_send_cc(midi_device, MIDI_CHAN, i - 3, 0);
 					}
 				} else {
 					//store the current input state
@@ -135,17 +98,17 @@ int main(void) {
 						switch(i){
 							case 0:
 								program = (program + 1) % 128;
-								midi_send_programchange(&device, MIDI_CHAN, program);
+								midi_send_programchange(midi_device, MIDI_CHAN, program);
 								break;
 							case 1:
 								program = (program - 1) % 128;
-								midi_send_programchange(&device, MIDI_CHAN, program);
+								midi_send_programchange(midi_device, MIDI_CHAN, program);
 								break;
 							case 2:
-								midi_send_noteon(&device, MIDI_CHAN, 64, 127);
+								midi_send_noteon(midi_device, MIDI_CHAN, 64, 127);
 								break;
 							default:
-								midi_send_cc(&device, MIDI_CHAN, i - 3, 1);
+								midi_send_cc(midi_device, MIDI_CHAN, i - 3, 1);
 								break;
 						}
 					}
