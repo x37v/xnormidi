@@ -20,9 +20,11 @@
 //
 
 #include "midi.h"
+#define MIN(x,y) (((x) < (y)) ? (x) : (y)) 
 
 //internally used to call the callbacks
 void midi_input_callbacks(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
+void midi_process_byte(MidiDevice * device, uint8_t input);
 
 bool midi_is_statusbyte(uint8_t theByte){
    return (bool)(theByte & MIDI_STATUSMASK);
@@ -56,7 +58,6 @@ midi_packet_length_t midi_packet_length(uint8_t status){
       case MIDI_TUNEREQUEST:
          return ONE;
       case SYSEX_END:
-         return ZERO;
       case SYSEX_BEGIN:
       default:
          return UNDEFINED;
@@ -66,6 +67,7 @@ midi_packet_length_t midi_packet_length(uint8_t status){
 void midi_init_device(MidiDevice * device){
    device->input_state = IDLE;
    device->input_count = 0;
+   bytequeue_init(&device->input_queue, device->input_queue_data, MIDI_INPUT_QUEUE_LENGTH);
 }
 
 void midi_send_byte(MidiDevice * device, uint8_t b){
@@ -203,22 +205,33 @@ void midi_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, 
    if (cnt > 3)
       cnt = 3;
 
-   //TODO store in buffer
+   uint8_t i;
+   for (i = 0; i < cnt; i++)
+      bytequeue_enqueue(&device->input_queue, input[i]);
 }
 
-void midi_process_byte(MidiDevice * device, input) {
+void midi_process(MidiDevice * device) {
+   //pull stuff off the queue and process
+   byteQueueIndex_t len = bytequeue_length(&device->input_queue);
+   uint16_t i;
+   //TODO limit number of bytes processed?
+   for(i = 0; i < len; i++) {
+      midi_process_byte(device, bytequeue_get(&device->input_queue, 0));
+      bytequeue_remove(&device->input_queue, 1);
+   }
+}
+
+void midi_process_byte(MidiDevice * device, uint8_t input) {
    if (midi_is_realtime(input)) {
       //call callback, don't change any state
       midi_input_callbacks(device, 1, input, 0, 0);
    } else if (midi_is_statusbyte(input)) {
-      //grab the length
-      midi_packet_length_t length = midi_packet_length(input);
       //store the byte
       if (device->input_state != SYSEX_MESSAGE) {
          device->input_buffer[0] = input;
          device->input_count = 1;
       }
-      switch (length) {
+      switch (midi_packet_length(input)) {
          case ONE:
             device->input_state = IDLE;
             midi_input_callbacks(device, 1, input, 0, 0);
@@ -230,7 +243,7 @@ void midi_process_byte(MidiDevice * device, input) {
             device->input_state = THREE_BYTE_MESSAGE;
             break;
          case UNDEFINED:
-            switch(input[0]) {
+            switch(input) {
                case SYSEX_BEGIN:
                   device->input_state = SYSEX_MESSAGE;
                   break;
@@ -238,7 +251,7 @@ void midi_process_byte(MidiDevice * device, input) {
                   //failsafe, should never happen
                   if(device->input_count > 2) {
                      device->input_state = IDLE;
-                     device->input_count = 2
+                     device->input_count = 2;
                   }
                   //send what is left in the input buffer, set idle
                   device->input_buffer[device->input_count] = input;
@@ -253,6 +266,10 @@ void midi_process_byte(MidiDevice * device, input) {
                   device->input_count = 0;
             }
 
+            break;
+         default:
+            device->input_state = IDLE;
+            device->input_count = 0;
             break;
       }
    } else {

@@ -21,12 +21,15 @@
 
 #ifndef AVR_MIDI_H
 #define AVR_MIDI_H
+
 #include <inttypes.h>
 #include <stdbool.h>
 
+#include "bytequeue/bytequeue.h"
+#define MIDI_INPUT_QUEUE_LENGTH 192
+
 typedef enum {
-   UNDEFINED = -1,
-   ZERO = 0,
+   UNDEFINED = 0,
    ONE = 1,
    TWO = 2,
    THREE = 3} midi_packet_length_t;
@@ -45,10 +48,15 @@ typedef enum {
 //device [be it virtual or real]
 typedef struct _midi_device {
 	midi_send_func_t send_func;
+
    //for internal input processing
    uint8_t input_buffer[3];
    input_state_t input_state;
    uint8_t input_count;
+
+   //for queueing data between the input and the processing functions
+   uint8_t input_queue_data[MIDI_INPUT_QUEUE_LENGTH];
+   byteQueue_t input_queue;
 } MidiDevice;
 
 //general information [device independent]
@@ -87,7 +95,10 @@ void midi_send_songposition(MidiDevice * device, uint16_t pos);
 void midi_send_songselect(MidiDevice * device, uint8_t song);
 inline void midi_send_tunerequest(MidiDevice * device);
 
-//input processing
+//processing
+void midi_process(MidiDevice * device);
+
+//input processing, only used if you're creating a custom device
 void midi_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 
 #define SYSEX_BEGIN 0xF0

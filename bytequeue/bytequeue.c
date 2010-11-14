@@ -26,7 +26,7 @@ void bytequeue_init(byteQueue_t * queue, uint8_t * dataArray, byteQueueIndex_t a
 	queue->start = queue->end = 0;
 }
 
-bool bytequeueen_queue(byteQueue_t * queue, uint8_t item){
+bool bytequeue_enqueue(byteQueue_t * queue, uint8_t item){
 	uint8_t sreg = SREG;
 	cli();
 	//full
