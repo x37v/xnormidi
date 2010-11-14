@@ -65,8 +65,8 @@ void midi_send_songselect(MidiDevice * device, uint8_t song);
 inline void midi_send_tunerequest(MidiDevice * device);
 
 //input callback registration
-void midi_register_realtime_callback(MidiDevice * device, midi_one_byte_func_t func);
 
+//three byte funcs
 void midi_register_cc_callback(MidiDevice * device, midi_three_byte_func_t func);
 void midi_register_noteon_callback(MidiDevice * device, midi_three_byte_func_t func);
 void midi_register_noteoff_callback(MidiDevice * device, midi_three_byte_func_t func);
@@ -74,6 +74,17 @@ void midi_register_aftertouch_callback(MidiDevice * device, midi_three_byte_func
 void midi_register_pitchbend_callback(MidiDevice * device, midi_three_byte_func_t func);
 void midi_register_songposition_callback(MidiDevice * device, midi_three_byte_func_t func);
 
+//two byte funcs
+void midi_register_progchange_callback(MidiDevice * device, midi_two_byte_func_t func);
+void midi_register_chanpressure_callback(MidiDevice * device, midi_two_byte_func_t func);
+void midi_register_songselect_callback(MidiDevice * device, midi_two_byte_func_t func);
+void midi_register_tc_quarterframe_callback(MidiDevice * device, midi_two_byte_func_t func);
+
+//one byte funcs
+void midi_register_realtime_callback(MidiDevice * device, midi_one_byte_func_t func);
+void midi_register_tunerequest_callback(MidiDevice * device, midi_one_byte_func_t func);
+
+//default
 void midi_register_default_callback(MidiDevice * device, midi_var_byte_func_t func);
 
 #define SYSEX_BEGIN 0xF0

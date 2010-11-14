@@ -18,8 +18,6 @@ struct _midi_device {
 	midi_send_func_t send_func;
 
    //********input callbacks
-   //one byte funcs
-   midi_one_byte_func_t input_realtime_callback;
    //three byte funcs
    midi_three_byte_func_t input_cc_callback;
    midi_three_byte_func_t input_noteon_callback;
@@ -27,6 +25,14 @@ struct _midi_device {
    midi_three_byte_func_t input_aftertouch_callback;
    midi_three_byte_func_t input_pitchbend_callback;
    midi_three_byte_func_t input_songposition_callback;
+   //two byte funcs
+   midi_two_byte_func_t input_progchange_callback;
+   midi_two_byte_func_t input_chanpressure_callback;
+   midi_two_byte_func_t input_songselect_callback;
+   midi_two_byte_func_t input_tc_quaterframe_callback;
+   //one byte funcs
+   midi_one_byte_func_t input_realtime_callback;
+   midi_one_byte_func_t input_tunerequest_callback;
 
    //default func
    //only called if more specific callback is not matched

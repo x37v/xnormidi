@@ -18,8 +18,6 @@ void midi_init_device(MidiDevice * device){
    device->input_count = 0;
    bytequeue_init(&device->input_queue, device->input_queue_data, MIDI_INPUT_QUEUE_LENGTH);
 
-   device->input_realtime_callback = NULL;
-
    //three byte funcs
    device->input_cc_callback = NULL;
    device->input_noteon_callback = NULL;
@@ -27,6 +25,16 @@ void midi_init_device(MidiDevice * device){
    device->input_aftertouch_callback = NULL;
    device->input_pitchbend_callback = NULL;
    device->input_songposition_callback = NULL;
+
+   //two byte funcs
+   device->input_progchange_callback = NULL;
+   device->input_chanpressure_callback = NULL;
+   device->input_songselect_callback = NULL;
+   device->input_tc_quaterframe_callback = NULL;
+
+   //one byte funcs
+   device->input_realtime_callback = NULL;
+   device->input_tunerequest_callback = NULL;
 
    device->input_default_callback = NULL;
 }
@@ -196,11 +204,39 @@ void midi_input_callbacks(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8
          }
          break;
       case 2:
+         {
+            midi_two_byte_func_t func = NULL;
+            switch (byte0 & 0xF0) {
+               case MIDI_PROGCHANGE:
+                  func = device->input_progchange_callback;
+                  break;
+               case MIDI_CHANPRESSURE:
+                  func = device->input_chanpressure_callback;
+                  break;
+               case MIDI_SONGSELECT:
+                  func = device->input_songselect_callback;
+                  break;
+               case MIDI_TC_QUATERFRAME:
+                  func = device->input_tc_quaterframe_callback;
+                  break;
+               default:
+                  break;
+            }
+            if(func) {
+               func(device, byte0, byte1);
+               called = true;
+            }
+         }
          break;
       case 1:
-         if (midi_is_realtime(byte0)) {
-            if (device->input_realtime_callback) {
-               device->input_realtime_callback(device, byte0);
+         {
+            midi_one_byte_func_t func = NULL;
+            if (midi_is_realtime(byte0))
+               func = device->input_realtime_callback;
+            else if (byte0 == MIDI_TUNEREQUEST)
+               func = device->input_tunerequest_callback;
+            if (func) {
+               func(device, byte0);
                called = true;
             }
          }

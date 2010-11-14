@@ -188,10 +188,6 @@ void midi_send_tunerequest(MidiDevice * device){
 	device->send_func(1, MIDI_TUNEREQUEST, 0, 0);
 }
 
-void midi_register_realtime_callback(MidiDevice * device, midi_one_byte_func_t func){
-   device->input_realtime_callback = func;
-}
-
 void midi_register_cc_callback(MidiDevice * device, midi_three_byte_func_t func){
    device->input_cc_callback = func;
 }
@@ -215,6 +211,31 @@ void midi_register_pitchbend_callback(MidiDevice * device, midi_three_byte_func_
 void midi_register_songposition_callback(MidiDevice * device, midi_three_byte_func_t func){
    device->input_songposition_callback = func;
 }
+
+void midi_register_progchange_callback(MidiDevice * device, midi_two_byte_func_t func) {
+   device->input_progchange_callback = func;
+}
+
+void midi_register_chanpressure_callback(MidiDevice * device, midi_two_byte_func_t func) {
+   device->input_chanpressure_callback = func;
+}
+
+void midi_register_songselect_callback(MidiDevice * device, midi_two_byte_func_t func) {
+   device->input_songselect_callback = func;
+}
+
+void midi_register_tc_quarterframe_callback(MidiDevice * device, midi_two_byte_func_t func) {
+   device->input_tc_quaterframe_callback = func;
+}
+
+void midi_register_realtime_callback(MidiDevice * device, midi_one_byte_func_t func){
+   device->input_realtime_callback = func;
+}
+
+void midi_register_tunerequest_callback(MidiDevice * device, midi_one_byte_func_t func){
+   device->input_tunerequest_callback = func;
+}
+
 
 void midi_register_default_callback(MidiDevice * device, midi_var_byte_func_t func){
    device->input_default_callback = func;
