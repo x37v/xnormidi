@@ -26,11 +26,12 @@ int main(void) {
 
    midi_init_device(&test_device);
    midi_device_set_send_func(&test_device, send_func);
-   midi_register_default_callback(&test_device, default_callback);
-   midi_register_realtime_callback(&test_device, realtime_callback);
 
    midi_send_cc(&test_device, 0, 0, 1);
    midi_send_cc(&test_device, 15, 1, 1);
+
+   midi_register_default_callback(&test_device, default_callback);
+   midi_register_realtime_callback(&test_device, realtime_callback);
 
    midi_input(&test_device, 3, 0xB0, 0, 1);
    midi_input(&test_device, 1, MIDI_CLOCK, 0, 0);
@@ -39,6 +40,7 @@ int main(void) {
    midi_input(&test_device, 1, 0xB0, 0, 0);
    midi_input(&test_device, 1, MIDI_CLOCK, 0, 0);
    midi_input(&test_device, 1, 0, 0, 0);
+   midi_input(&test_device, 1, MIDI_START, 0, 0);
    midi_input(&test_device, 1, 1, 0, 0);
 
    midi_process(&test_device);
@@ -47,6 +49,14 @@ int main(void) {
    printf("\nregistering cc callback\n");
    midi_register_cc_callback(&test_device, cc_callback);
    midi_input(&test_device, 3, 0xB0, 0, 1);
+   midi_process(&test_device);
+   midi_process(&test_device);
+
+   midi_input(&test_device, 1, 0xB0, 0, 0);
+   midi_input(&test_device, 1, MIDI_CLOCK, 0, 0);
+   midi_input(&test_device, 1, 0, 0, 0);
+   midi_input(&test_device, 1, MIDI_START, 0, 0);
+   midi_input(&test_device, 1, 1, 0, 0);
    midi_process(&test_device);
 
    printf("\n\nEND OF TEST\n\n");
