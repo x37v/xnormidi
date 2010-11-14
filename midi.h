@@ -35,10 +35,20 @@ typedef enum {
 //gives the bytes, all bytes beyond cnt should be ignored
 typedef void (* midi_send_func_t)(uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 
+typedef enum {
+   IDLE, 
+   TWO_BYTE_MESSAGE = 2, 
+   THREE_BYTE_MESSAGE = 3,
+   SYSEX_MESSAGE} input_state_t;
+
 //this is a struct that you create and populate in order to create a new midi
 //device [be it virtual or real]
 typedef struct _midi_device {
 	midi_send_func_t send_func;
+   //for internal input processing
+   uint8_t input_buffer[3];
+   input_state_t input_state;
+   uint8_t input_count;
 } MidiDevice;
 
 //general information [device independent]
@@ -48,6 +58,9 @@ inline bool midi_is_statusbyte(uint8_t theByte);
 inline bool midi_is_realtime(uint8_t theByte);
 //returns the length of the packet associated with the status byte given
 inline midi_packet_length_t midi_packet_length(uint8_t status);
+
+//initialize midi device
+void midi_init_device(MidiDevice * device);
 
 //send
 inline void midi_send_byte(MidiDevice * device, uint8_t b);
@@ -73,6 +86,9 @@ void midi_send_tcquaterframe(MidiDevice * device, uint8_t time); //range 0..1638
 void midi_send_songposition(MidiDevice * device, uint16_t pos);
 void midi_send_songselect(MidiDevice * device, uint8_t song);
 inline void midi_send_tunerequest(MidiDevice * device);
+
+//input processing
+void midi_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 
 #define SYSEX_BEGIN 0xF0
 #define SYSEX_END 0xF7

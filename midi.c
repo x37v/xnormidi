@@ -21,6 +21,9 @@
 
 #include "midi.h"
 
+//internally used to call the callbacks
+void midi_input_callbacks(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
+
 bool midi_is_statusbyte(uint8_t theByte){
    return (bool)(theByte & MIDI_STATUSMASK);
 }
@@ -58,6 +61,11 @@ midi_packet_length_t midi_packet_length(uint8_t status){
       default:
          return UNDEFINED;
    }
+}
+
+void midi_init_device(MidiDevice * device){
+   device->input_state = IDLE;
+   device->input_count = 0;
 }
 
 void midi_send_byte(MidiDevice * device, uint8_t b){
@@ -182,5 +190,107 @@ void midi_send_songselect(MidiDevice * device, uint8_t song){
 
 void midi_send_tunerequest(MidiDevice * device){
 	device->send_func(1, MIDI_TUNEREQUEST, 0, 0);
+}
+
+void midi_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
+   //temp storage so we can loop over the bytes
+   uint8_t input[3];
+   input[0] = byte0;
+   input[1] = byte1;
+   input[2] = byte2;
+   
+   //clamp range
+   if (cnt > 3)
+      cnt = 3;
+
+   //TODO store in buffer
+}
+
+void midi_process_byte(MidiDevice * device, input) {
+   if (midi_is_realtime(input)) {
+      //call callback, don't change any state
+      midi_input_callbacks(device, 1, input, 0, 0);
+   } else if (midi_is_statusbyte(input)) {
+      //grab the length
+      midi_packet_length_t length = midi_packet_length(input);
+      //store the byte
+      if (device->input_state != SYSEX_MESSAGE) {
+         device->input_buffer[0] = input;
+         device->input_count = 1;
+      }
+      switch (length) {
+         case ONE:
+            device->input_state = IDLE;
+            midi_input_callbacks(device, 1, input, 0, 0);
+            break;
+         case TWO:
+            device->input_state = TWO_BYTE_MESSAGE;
+            break;
+         case THREE:
+            device->input_state = THREE_BYTE_MESSAGE;
+            break;
+         case UNDEFINED:
+            switch(input[0]) {
+               case SYSEX_BEGIN:
+                  device->input_state = SYSEX_MESSAGE;
+                  break;
+               case SYSEX_END:
+                  //failsafe, should never happen
+                  if(device->input_count > 2) {
+                     device->input_state = IDLE;
+                     device->input_count = 2
+                  }
+                  //send what is left in the input buffer, set idle
+                  device->input_buffer[device->input_count] = input;
+                  device->input_state = IDLE;
+                  device->input_count += 1;
+                  //call the callback
+                  midi_input_callbacks(device, device->input_count, 
+                        device->input_buffer[0], device->input_buffer[1], device->input_buffer[2]);
+                  break;
+               default:
+                  device->input_state = IDLE;
+                  device->input_count = 0;
+            }
+
+            break;
+      }
+   } else {
+      //failsafe, should never happen
+      if(device->input_state > 2)
+         device->input_state = IDLE;
+
+      if (device->input_state != IDLE) {
+         //store the byte
+         device->input_buffer[device->input_count] = input;
+         //increment count
+         device->input_count += 1;
+         switch(device->input_count) {
+            case 3:
+               if (device->input_state != SYSEX_MESSAGE)
+                  device->input_state = IDLE;
+               device->input_count = 0;
+               //call callback
+               midi_input_callbacks(device, 3,
+                     device->input_buffer[0], device->input_buffer[1], device->input_buffer[2]);
+               break;
+            case 2:
+               if (device->input_state == TWO_BYTE_MESSAGE) {
+                  device->input_state = IDLE;
+                  //call callback
+                  midi_input_callbacks(device, 2, device->input_buffer[0], device->input_buffer[1], 0);
+               }
+               break;
+            case 1:
+            default:
+               //shouldn't happen
+               device->input_state = IDLE;
+               break;
+         }
+      }
+   }
+}
+
+void midi_input_callbacks(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
 }
 
