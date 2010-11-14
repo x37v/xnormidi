@@ -16,6 +16,11 @@ void realtime_callback(MidiDevice * device, uint8_t byte){
    printf("realtime in: %2x\n", byte);
 }
 
+void cc_callback(MidiDevice * device, uint8_t status, uint8_t idx, uint8_t val) {
+   printf("cc in: %2x %2x %2x\n", status, idx, val);
+}
+
+
 int main(void) {
    printf("\n\nSTART OF TEST\n\n");
 
@@ -36,6 +41,12 @@ int main(void) {
    midi_input(&test_device, 1, 0, 0, 0);
    midi_input(&test_device, 1, 1, 0, 0);
 
+   midi_process(&test_device);
+   midi_process(&test_device);
+
+   printf("\nregistering cc callback\n");
+   midi_register_cc_callback(&test_device, cc_callback);
+   midi_input(&test_device, 3, 0xB0, 0, 1);
    midi_process(&test_device);
 
    printf("\n\nEND OF TEST\n\n");

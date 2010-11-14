@@ -192,6 +192,30 @@ void midi_register_realtime_callback(MidiDevice * device, midi_one_byte_func_t f
    device->input_realtime_callback = func;
 }
 
+void midi_register_cc_callback(MidiDevice * device, midi_three_byte_func_t func){
+   device->input_cc_callback = func;
+}
+
+void midi_register_noteon_callback(MidiDevice * device, midi_three_byte_func_t func){
+   device->input_noteon_callback = func;
+}
+
+void midi_register_noteoff_callback(MidiDevice * device, midi_three_byte_func_t func){
+   device->input_noteoff_callback = func;
+}
+
+void midi_register_aftertouch_callback(MidiDevice * device, midi_three_byte_func_t func){
+   device->input_aftertouch_callback = func;
+}
+
+void midi_register_pitchbend_callback(MidiDevice * device, midi_three_byte_func_t func){
+   device->input_pitchbend_callback = func;
+}
+
+void midi_register_songposition_callback(MidiDevice * device, midi_three_byte_func_t func){
+   device->input_songposition_callback = func;
+}
+
 void midi_register_default_callback(MidiDevice * device, midi_var_byte_func_t func){
    device->input_default_callback = func;
 }

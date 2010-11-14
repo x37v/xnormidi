@@ -34,6 +34,7 @@ post: dist
 clean:
 	rm -f *.o *.map *.out *.hex *.tar.gz */*.o
 	cd examples/ && make clean
+	cd test/ && make clean
 
 .PHONY: examples
 

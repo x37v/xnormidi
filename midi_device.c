@@ -19,6 +19,15 @@ void midi_init_device(MidiDevice * device){
    bytequeue_init(&device->input_queue, device->input_queue_data, MIDI_INPUT_QUEUE_LENGTH);
 
    device->input_realtime_callback = NULL;
+
+   //three byte funcs
+   device->input_cc_callback = NULL;
+   device->input_noteon_callback = NULL;
+   device->input_noteoff_callback = NULL;
+   device->input_aftertouch_callback = NULL;
+   device->input_pitchbend_callback = NULL;
+   device->input_songposition_callback = NULL;
+
    device->input_default_callback = NULL;
 }
 
@@ -156,6 +165,35 @@ void midi_input_callbacks(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8
    bool called = false;
    switch (cnt) {
       case 3:
+         {
+            midi_three_byte_func_t func = NULL;
+            switch (byte0 & 0xF0) {
+               case MIDI_CC:
+                  func = device->input_cc_callback;
+                  break;
+               case MIDI_NOTEON:
+                  func = device->input_noteon_callback;
+                  break;
+               case MIDI_NOTEOFF:
+                  func = device->input_noteoff_callback;
+                  break;
+               case MIDI_AFTERTOUCH:
+                  func = device->input_aftertouch_callback;
+                  break;
+               case MIDI_PITCHBEND:
+                  func = device->input_pitchbend_callback;
+                  break;
+               case MIDI_SONGPOSITION:
+                  func = device->input_songposition_callback;
+                  break;
+               default:
+                  break;
+            }
+            if(func) {
+               func(device, byte0, byte1, byte2);
+               called = true;
+            }
+         }
          break;
       case 2:
          break;

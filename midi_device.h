@@ -17,8 +17,18 @@ struct _midi_device {
    //output send function
 	midi_send_func_t send_func;
 
-   //input callbacks
+   //********input callbacks
+   //one byte funcs
    midi_one_byte_func_t input_realtime_callback;
+   //three byte funcs
+   midi_three_byte_func_t input_cc_callback;
+   midi_three_byte_func_t input_noteon_callback;
+   midi_three_byte_func_t input_noteoff_callback;
+   midi_three_byte_func_t input_aftertouch_callback;
+   midi_three_byte_func_t input_pitchbend_callback;
+   midi_three_byte_func_t input_songposition_callback;
+
+   //default func
    //only called if more specific callback is not matched
    midi_var_byte_func_t input_default_callback;
 
