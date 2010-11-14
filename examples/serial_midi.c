@@ -1,5 +1,6 @@
 #include "serial_midi.h"
 #include <avr/interrupt.h>
+#include "stdlib.h"
 
 static MidiDevice midi_device;
 
@@ -25,7 +26,8 @@ MidiDevice * serial_midi_device(void) {
 
 MidiDevice* serial_midi_init(uint16_t clockScale, bool out, bool in){
    //send up the device
-   midi_device.send_func = serial_midi_send;
+   midi_init_device(&midi_device);
+   midi_device_set_send_func(&midi_device, serial_midi_send);
 
 	// Set baud rate
 	UBRRH = (uint8_t)(clockScale >> 8);

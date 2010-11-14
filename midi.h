@@ -22,56 +22,14 @@
 #ifndef AVR_MIDI_H
 #define AVR_MIDI_H
 
-#include <inttypes.h>
-#include <stdbool.h>
-
-#include "bytequeue/bytequeue.h"
-#define MIDI_INPUT_QUEUE_LENGTH 192
+#include "midi_device.h"
+#include "midi_function_types.h"
 
 typedef enum {
    UNDEFINED = 0,
    ONE = 1,
    TWO = 2,
    THREE = 3} midi_packet_length_t;
-
-//forward declaration
-typedef struct _midi_device MidiDevice;
-
-//the function indicates the length of the packet type it is trying to send and
-//gives the bytes, all bytes beyond cnt should be ignored
-typedef void (* midi_send_func_t)(uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
-typedef void (* midi_one_byte_func_t)(MidiDevice * device, uint8_t byte);
-typedef void (* midi_two_byte_func_t)(MidiDevice * device, uint8_t byte0, uint8_t byte1);
-typedef void (* midi_three_byte_func_t)(MidiDevice * device, uint8_t byte0, uint8_t byte1, uint8_t byte2);
-typedef void (* midi_var_byte_func_t)(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
-
-typedef enum {
-   IDLE, 
-   TWO_BYTE_MESSAGE = 2, 
-   THREE_BYTE_MESSAGE = 3,
-   SYSEX_MESSAGE} input_state_t;
-
-//this is a struct that you create and populate in order to create a new midi
-//device [be it virtual or real]
-struct _midi_device {
-   //output send function
-	midi_send_func_t send_func;
-
-   //input callbacks
-   midi_one_byte_func_t input_realtime_callback;
-   //only called if more specific callback is not matched
-   midi_var_byte_func_t input_default_callback;
-
-   //USERS SHOULD NOT MODIFY ANYTHING BELOW HERE
-   //for internal input processing
-   uint8_t input_buffer[3];
-   input_state_t input_state;
-   uint8_t input_count;
-
-   //for queueing data between the input and the processing functions
-   uint8_t input_queue_data[MIDI_INPUT_QUEUE_LENGTH];
-   byteQueue_t input_queue;
-};
 
 //general information [device independent]
 //returns true if the byte given is a midi status byte
@@ -80,9 +38,6 @@ inline bool midi_is_statusbyte(uint8_t theByte);
 inline bool midi_is_realtime(uint8_t theByte);
 //returns the length of the packet associated with the status byte given
 inline midi_packet_length_t midi_packet_length(uint8_t status);
-
-//initialize midi device
-void midi_init_device(MidiDevice * device);
 
 //send
 inline void midi_send_byte(MidiDevice * device, uint8_t b);
@@ -109,11 +64,9 @@ void midi_send_songposition(MidiDevice * device, uint16_t pos);
 void midi_send_songselect(MidiDevice * device, uint8_t song);
 inline void midi_send_tunerequest(MidiDevice * device);
 
-//processing
-void midi_process(MidiDevice * device);
-
-//input processing, only used if you're creating a custom device
-void midi_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
+//input callback registration
+void midi_register_realtime_callback(MidiDevice * device, midi_one_byte_func_t func);
+void midi_register_default_callback(MidiDevice * device, midi_var_byte_func_t func);
 
 #define SYSEX_BEGIN 0xF0
 #define SYSEX_END 0xF7
