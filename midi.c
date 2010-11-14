@@ -22,6 +22,10 @@
 #include "midi.h"
 #define MIN(x,y) (((x) < (y)) ? (x) : (y)) 
 
+#ifndef NULL
+#define NULL 0
+#endif
+
 //internally used to call the callbacks
 void midi_input_callbacks(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 void midi_process_byte(MidiDevice * device, uint8_t input);
@@ -68,6 +72,9 @@ void midi_init_device(MidiDevice * device){
    device->input_state = IDLE;
    device->input_count = 0;
    bytequeue_init(&device->input_queue, device->input_queue_data, MIDI_INPUT_QUEUE_LENGTH);
+
+   device->input_realtime_callback = NULL;
+   device->input_default_callback = NULL;
 }
 
 void midi_send_byte(MidiDevice * device, uint8_t b){
@@ -309,5 +316,31 @@ void midi_process_byte(MidiDevice * device, uint8_t input) {
 }
 
 void midi_input_callbacks(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
+   //did we end up calling a callback?
+   bool called = false;
+   switch (cnt) {
+      case 3:
+         break;
+      case 2:
+         break;
+      case 1:
+         if (midi_is_realtime(byte0)) {
+            if (device->input_realtime_callback) {
+               device->input_realtime_callback(device, byte0);
+               called = true;
+            }
+         }
+         break;
+      default:
+         //just in case
+         if (cnt > 3)
+            cnt = 0;
+         break;
+   }
+
+   //if there is a default callback and we haven't called a more specific one, 
+   //call the default
+   if (!called && device->input_default_callback)
+      device->input_default_callback(device, cnt, byte0, byte1, byte2);
 }
 

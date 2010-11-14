@@ -34,9 +34,16 @@ typedef enum {
    TWO = 2,
    THREE = 3} midi_packet_length_t;
 
+//forward declaration
+typedef struct _midi_device MidiDevice;
+
 //the function indicates the length of the packet type it is trying to send and
 //gives the bytes, all bytes beyond cnt should be ignored
 typedef void (* midi_send_func_t)(uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
+typedef void (* midi_one_byte_func_t)(MidiDevice * device, uint8_t byte);
+typedef void (* midi_two_byte_func_t)(MidiDevice * device, uint8_t byte0, uint8_t byte1);
+typedef void (* midi_three_byte_func_t)(MidiDevice * device, uint8_t byte0, uint8_t byte1, uint8_t byte2);
+typedef void (* midi_var_byte_func_t)(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 
 typedef enum {
    IDLE, 
@@ -46,9 +53,16 @@ typedef enum {
 
 //this is a struct that you create and populate in order to create a new midi
 //device [be it virtual or real]
-typedef struct _midi_device {
+struct _midi_device {
+   //output send function
 	midi_send_func_t send_func;
 
+   //input callbacks
+   midi_one_byte_func_t input_realtime_callback;
+   //only called if more specific callback is not matched
+   midi_var_byte_func_t input_default_callback;
+
+   //USERS SHOULD NOT MODIFY ANYTHING BELOW HERE
    //for internal input processing
    uint8_t input_buffer[3];
    input_state_t input_state;
@@ -57,7 +71,7 @@ typedef struct _midi_device {
    //for queueing data between the input and the processing functions
    uint8_t input_queue_data[MIDI_INPUT_QUEUE_LENGTH];
    byteQueue_t input_queue;
-} MidiDevice;
+};
 
 //general information [device independent]
 //returns true if the byte given is a midi status byte
