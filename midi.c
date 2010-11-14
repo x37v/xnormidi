@@ -20,7 +20,6 @@
 //
 
 #include "midi.h"
-#include <assert.h>
 #define MIN(x,y) (((x) < (y)) ? (x) : (y)) 
 
 #ifndef NULL
@@ -190,12 +189,10 @@ void midi_send_tunerequest(MidiDevice * device){
 }
 
 void midi_register_realtime_callback(MidiDevice * device, midi_one_byte_func_t func){
-   assert(device);
    device->input_realtime_callback = func;
 }
 
 void midi_register_default_callback(MidiDevice * device, midi_var_byte_func_t func){
-   assert(device);
    device->input_default_callback = func;
 }
 

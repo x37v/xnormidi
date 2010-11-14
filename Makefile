@@ -32,7 +32,7 @@ post: dist
 	scp basic.c x37v.info:x37v.info/projects/microcontroller/avr-midi/
 
 clean:
-	rm -f *.o *.map *.out *.hex *.tar.gz
+	rm -f *.o *.map *.out *.hex *.tar.gz */*.o
 	cd examples/ && make clean
 
 .PHONY: examples
