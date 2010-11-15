@@ -54,6 +54,9 @@ struct _midi_device {
 //input processing, only used if you're creating a custom device
 void midi_device_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 //set send function, only used if you're creating a custom device
+//you'll most likely want the function that this calls to disable interrupts so
+//that you can call the various midi send functions without worrying about
+//locking.
 void midi_device_set_send_func(MidiDevice * device, midi_send_func_t send_func);
 
 #endif
