@@ -52,8 +52,8 @@ void midi_process(MidiDevice * device); // [implementation in midi_device.c]
 void midi_send_cc(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t val);
 void midi_send_noteon(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel);
 void midi_send_noteoff(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel);
-void midi_send_aftertouch(MidiDevice * device, uint8_t chan, uint8_t note_num, uint8_t amt); //range -8192, 8191
-void midi_send_pitchbend(MidiDevice * device, uint8_t chan, int16_t amt);
+void midi_send_aftertouch(MidiDevice * device, uint8_t chan, uint8_t note_num, uint8_t amt);
+void midi_send_pitchbend(MidiDevice * device, uint8_t chan, int16_t amt); //range -8192, 8191
 void midi_send_programchange(MidiDevice * device, uint8_t chan, uint8_t num);
 void midi_send_channelpressure(MidiDevice * device, uint8_t chan, uint8_t amt);
 
