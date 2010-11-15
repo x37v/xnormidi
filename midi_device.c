@@ -103,6 +103,8 @@ void midi_process_byte(MidiDevice * device, uint8_t input) {
             switch(input) {
                case SYSEX_BEGIN:
                   device->input_state = SYSEX_MESSAGE;
+                  device->input_buffer[0] = input;
+                  device->input_count = 1;
                   break;
                case SYSEX_END:
                   //failsafe, should never happen
