@@ -49,12 +49,6 @@ struct _midi_device {
    byteQueue_t input_queue;
 };
 
-//initialize midi device
-void midi_init_device(MidiDevice * device);
-
-//processing
-void midi_process(MidiDevice * device);
-
 //input processing, only used if you're creating a custom device
 void midi_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 //set send function, only used if you're creating a custom device

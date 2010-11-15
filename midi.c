@@ -64,10 +64,6 @@ midi_packet_length_t midi_packet_length(uint8_t status){
    }
 }
 
-void midi_send_byte(MidiDevice * device, uint8_t b){
-	device->send_func(1, b, 0, 0);
-}
-
 void midi_send_cc(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t val){
 	//CC Status: 0xB0 to 0xBF where the low nibble is the MIDI channel.
 	//CC Data: Controller Num, Controller Val
@@ -187,6 +183,12 @@ void midi_send_songselect(MidiDevice * device, uint8_t song){
 void midi_send_tunerequest(MidiDevice * device){
 	device->send_func(1, MIDI_TUNEREQUEST, 0, 0);
 }
+
+void midi_send_byte(MidiDevice * device, uint8_t b){
+	device->send_func(1, b, 0, 0);
+}
+
+
 
 void midi_register_cc_callback(MidiDevice * device, midi_three_byte_func_t func){
    device->input_cc_callback = func;

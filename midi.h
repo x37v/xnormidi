@@ -31,7 +31,7 @@ typedef enum {
    TWO = 2,
    THREE = 3} midi_packet_length_t;
 
-//general information [device independent]
+//general information [device independent] ****************
 //returns true if the byte given is a midi status byte
 inline bool midi_is_statusbyte(uint8_t theByte);
 //returns true if the byte given is a realtime status byte
@@ -39,8 +39,16 @@ inline bool midi_is_realtime(uint8_t theByte);
 //returns the length of the packet associated with the status byte given
 inline midi_packet_length_t midi_packet_length(uint8_t status);
 
-//send
-inline void midi_send_byte(MidiDevice * device, uint8_t b);
+
+//initialize midi device
+void midi_init_device(MidiDevice * device); // [implementation in midi_device.c]
+
+//process input data
+//you need to call this if you expect your input callbacks to be called
+void midi_process(MidiDevice * device); // [implementation in midi_device.c]
+
+
+//send functions **********************
 void midi_send_cc(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t val);
 void midi_send_noteon(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel);
 void midi_send_noteoff(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel);
@@ -63,8 +71,10 @@ void midi_send_tcquaterframe(MidiDevice * device, uint8_t time); //range 0..1638
 void midi_send_songposition(MidiDevice * device, uint16_t pos);
 void midi_send_songselect(MidiDevice * device, uint8_t song);
 inline void midi_send_tunerequest(MidiDevice * device);
+inline void midi_send_byte(MidiDevice * device, uint8_t b);
 
-//input callback registration
+
+//input callback registration ***********************
 
 //three byte funcs
 void midi_register_cc_callback(MidiDevice * device, midi_three_byte_func_t func);
