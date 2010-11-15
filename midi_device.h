@@ -11,8 +11,11 @@ typedef enum {
    THREE_BYTE_MESSAGE = 3,
    SYSEX_MESSAGE} input_state_t;
 
-//this is a struct that you create and populate in order to create a new midi
-//device [be it virtual or real]
+//this structure represents the input and output functions and processing data
+//for a midi device.
+//A device can represent an actual physical device [serial port, usb port] or
+//something virtual.
+//You should not need to modify this structure directly.
 struct _midi_device {
    //output send function
 	midi_send_func_t send_func;
@@ -38,7 +41,6 @@ struct _midi_device {
    //only called if more specific callback is not matched
    midi_var_byte_func_t input_default_callback;
 
-   //USERS SHOULD NOT MODIFY ANYTHING BELOW HERE
    //for internal input processing
    uint8_t input_buffer[3];
    input_state_t input_state;
