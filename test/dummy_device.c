@@ -149,8 +149,8 @@ int main(void) {
 
    assert(!default_called);
    assert(!realtime_called);
-   midi_input(&test_device, 3, 0xB0, 0, 1);
-   midi_input(&test_device, 1, MIDI_CLOCK, 0, 0);
+   midi_device_input(&test_device, 3, 0xB0, 0, 1);
+   midi_device_input(&test_device, 1, MIDI_CLOCK, 0, 0);
    midi_process(&test_device);
    assert(default_called);
    assert(realtime_called);
@@ -159,37 +159,37 @@ int main(void) {
    assert(!default_called);
    assert(!realtime_called);
    //interspersed
-   midi_input(&test_device, 1, 0xB0, 0, 0);
-   midi_input(&test_device, 1, MIDI_CLOCK, 0, 0);
-   midi_input(&test_device, 1, 0, 0, 0);
-   midi_input(&test_device, 1, MIDI_START, 0, 0);
-   midi_input(&test_device, 1, 1, 0, 0);
+   midi_device_input(&test_device, 1, 0xB0, 0, 0);
+   midi_device_input(&test_device, 1, MIDI_CLOCK, 0, 0);
+   midi_device_input(&test_device, 1, 0, 0, 0);
+   midi_device_input(&test_device, 1, MIDI_START, 0, 0);
+   midi_device_input(&test_device, 1, 1, 0, 0);
    midi_process(&test_device);
    assert(default_called);
    assert(realtime_called);
 
    midi_register_cc_callback(&test_device, cc_callback);
    assert(!cc_called);
-   midi_input(&test_device, 3, 0xB0, 0, 1);
+   midi_device_input(&test_device, 3, 0xB0, 0, 1);
    midi_process(&test_device);
    assert(cc_called);
 
    reset();
    assert(!cc_called);
    assert(!realtime_called);
-   midi_input(&test_device, 1, 0xB0, 0, 0);
-   midi_input(&test_device, 1, MIDI_CLOCK, 0, 0);
-   midi_input(&test_device, 1, 0, 0, 0);
-   midi_input(&test_device, 1, MIDI_START, 0, 0);
-   midi_input(&test_device, 1, 1, 0, 0);
+   midi_device_input(&test_device, 1, 0xB0, 0, 0);
+   midi_device_input(&test_device, 1, MIDI_CLOCK, 0, 0);
+   midi_device_input(&test_device, 1, 0, 0, 0);
+   midi_device_input(&test_device, 1, MIDI_START, 0, 0);
+   midi_device_input(&test_device, 1, 1, 0, 0);
    midi_process(&test_device);
    assert(cc_called);
    assert(realtime_called);
 
    reset();
    assert(!anything_called());
-   midi_input(&test_device, 1, 0xB0, 0, 0);
-   midi_input(&test_device, 1, 0, 0, 0);
+   midi_device_input(&test_device, 1, 0xB0, 0, 0);
+   midi_device_input(&test_device, 1, 0, 0, 0);
    midi_process(&test_device);
    assert(!anything_called());
 

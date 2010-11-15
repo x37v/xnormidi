@@ -39,7 +39,7 @@ void midi_init_device(MidiDevice * device){
    device->input_default_callback = NULL;
 }
 
-void midi_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
+void midi_device_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
    //temp storage so we can loop over the bytes
    uint8_t input[3];
    input[0] = byte0;
