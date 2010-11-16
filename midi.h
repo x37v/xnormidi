@@ -94,8 +94,10 @@ void midi_register_tc_quarterframe_callback(MidiDevice * device, midi_two_byte_f
 void midi_register_realtime_callback(MidiDevice * device, midi_one_byte_func_t func);
 void midi_register_tunerequest_callback(MidiDevice * device, midi_one_byte_func_t func);
 
-//default
-void midi_register_default_callback(MidiDevice * device, midi_var_byte_func_t func);
+//fall through, only called if a more specific callback isn't matched and called
+void midi_register_fallthrough_callback(MidiDevice * device, midi_var_byte_func_t func);
+//catch all, always called if registered, independent of a more specific or fallthrough call
+void midi_register_catchall_callback(MidiDevice * device, midi_var_byte_func_t func);
 
 #define SYSEX_BEGIN 0xF0
 #define SYSEX_END 0xF7

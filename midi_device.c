@@ -36,7 +36,8 @@ void midi_init_device(MidiDevice * device){
    device->input_realtime_callback = NULL;
    device->input_tunerequest_callback = NULL;
 
-   device->input_default_callback = NULL;
+   device->input_fallthrough_callback = NULL;
+   device->input_catchall_callback = NULL;
 }
 
 void midi_device_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
@@ -250,9 +251,12 @@ void midi_input_callbacks(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8
          break;
    }
 
-   //if there is a default callback and we haven't called a more specific one, 
-   //call the default
-   if (!called && device->input_default_callback)
-      device->input_default_callback(device, cnt, byte0, byte1, byte2);
+   //if there is fallthrough default callback and we haven't called a more specific one, 
+   //call the fallthrough
+   if (!called && device->input_fallthrough_callback)
+      device->input_fallthrough_callback(device, cnt, byte0, byte1, byte2);
+   //always call the catch all if it exists
+   if (device->input_catchall_callback)
+      device->input_catchall_callback(device, cnt, byte0, byte1, byte2);
 }
 

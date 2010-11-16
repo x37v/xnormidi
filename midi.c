@@ -238,8 +238,11 @@ void midi_register_tunerequest_callback(MidiDevice * device, midi_one_byte_func_
    device->input_tunerequest_callback = func;
 }
 
+void midi_register_fallthrough_callback(MidiDevice * device, midi_var_byte_func_t func){
+   device->input_fallthrough_callback = func;
+}
 
-void midi_register_default_callback(MidiDevice * device, midi_var_byte_func_t func){
-   device->input_default_callback = func;
+void midi_register_catchall_callback(MidiDevice * device, midi_var_byte_func_t func){
+   device->input_catchall_callback = func;
 }
 

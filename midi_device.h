@@ -37,9 +37,10 @@ struct _midi_device {
    midi_one_byte_func_t input_realtime_callback;
    midi_one_byte_func_t input_tunerequest_callback;
 
-   //default func
    //only called if more specific callback is not matched
-   midi_var_byte_func_t input_default_callback;
+   midi_var_byte_func_t input_fallthrough_callback;
+   //called if registered, independent of other callbacks
+   midi_var_byte_func_t input_catchall_callback;
 
    //for internal input processing
    uint8_t input_buffer[3];

@@ -20,7 +20,7 @@ bool songselect_called;
 bool tc_quarterframe_called;
 bool realtime_called;
 bool tunerequest_called;
-bool default_called;
+bool fallthrough_called;
 
 void send_func(uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
    sent[0] = byte0;
@@ -95,8 +95,8 @@ void tunerequest_callback(MidiDevice * device, uint8_t byte){
    got[0] = byte;
 }
 
-void default_callback(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
-   default_called = true;
+void fallthrough_callback(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
+   fallthrough_called = true;
    got[0] = byte0;
    got[1] = byte1;
    got[2] = byte2;
@@ -118,7 +118,7 @@ void reset() {
    tc_quarterframe_called = false;
    realtime_called = false;
    tunerequest_called = false;
-   default_called = false;
+   fallthrough_called = false;
 }
 
 bool anything_called() {
@@ -134,7 +134,7 @@ bool anything_called() {
       tc_quarterframe_called ||
       realtime_called ||
       tunerequest_called ||
-      default_called;
+      fallthrough_called;
 }
 
 int main(void) {
@@ -144,19 +144,19 @@ int main(void) {
    midi_send_cc(&test_device, 0, 0, 1);
    midi_send_cc(&test_device, 15, 1, 1);
 
-   midi_register_default_callback(&test_device, default_callback);
+   midi_register_fallthrough_callback(&test_device, fallthrough_callback);
    midi_register_realtime_callback(&test_device, realtime_callback);
 
-   assert(!default_called);
+   assert(!fallthrough_called);
    assert(!realtime_called);
    midi_device_input(&test_device, 3, 0xB0, 0, 1);
    midi_device_input(&test_device, 1, MIDI_CLOCK, 0, 0);
    midi_process(&test_device);
-   assert(default_called);
+   assert(fallthrough_called);
    assert(realtime_called);
 
    reset();
-   assert(!default_called);
+   assert(!fallthrough_called);
    assert(!realtime_called);
    //interspersed
    midi_device_input(&test_device, 1, 0xB0, 0, 0);
@@ -165,7 +165,7 @@ int main(void) {
    midi_device_input(&test_device, 1, MIDI_START, 0, 0);
    midi_device_input(&test_device, 1, 1, 0, 0);
    midi_process(&test_device);
-   assert(default_called);
+   assert(fallthrough_called);
    assert(realtime_called);
 
    midi_register_cc_callback(&test_device, cc_callback);
