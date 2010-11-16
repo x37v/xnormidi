@@ -22,10 +22,16 @@ bool realtime_called;
 bool tunerequest_called;
 bool fallthrough_called;
 
-void send_func(uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
+void send_func(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
    sent[0] = byte0;
    sent[1] = byte1;
    sent[2] = byte0;
+   printf("sent: ");
+   uint8_t i;
+   for (i = 0; i < cnt; i++) {
+      printf("%02x ", sent[i]);
+   }
+   printf("\n");
 }
 
 void cc_callback(MidiDevice * device, uint8_t byte0, uint8_t byte1, uint8_t byte2){

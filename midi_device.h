@@ -18,7 +18,7 @@ typedef enum {
 //You should not need to modify this structure directly.
 struct _midi_device {
    //output send function
-	midi_send_func_t send_func;
+	midi_var_byte_func_t send_func;
 
    //********input callbacks
    //three byte funcs
@@ -58,6 +58,6 @@ void midi_device_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t 
 //you'll most likely want the function that this calls to disable interrupts so
 //that you can call the various midi send functions without worrying about
 //locking.
-void midi_device_set_send_func(MidiDevice * device, midi_send_func_t send_func);
+void midi_device_set_send_func(MidiDevice * device, midi_var_byte_func_t send_func);
 
 #endif

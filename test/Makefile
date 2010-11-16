@@ -1,4 +1,4 @@
-CFLAGS += -I. -I../ -g -Wall #-DDEBUG 
+CFLAGS += -I. -I../ -g -Wall -DDEBUG 
 SRC = dummy_device.c ../midi.c ../midi_device.c ../bytequeue/bytequeue.c
 OBJ = ${SRC:.c=.o}
 
