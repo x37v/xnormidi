@@ -33,11 +33,11 @@ typedef enum {
 
 //general information [device independent] ****************
 //returns true if the byte given is a midi status byte
-inline bool midi_is_statusbyte(uint8_t theByte);
+bool midi_is_statusbyte(uint8_t theByte);
 //returns true if the byte given is a realtime status byte
-inline bool midi_is_realtime(uint8_t theByte);
+bool midi_is_realtime(uint8_t theByte);
 //returns the length of the packet associated with the status byte given
-inline midi_packet_length_t midi_packet_length(uint8_t status);
+midi_packet_length_t midi_packet_length(uint8_t status);
 
 
 //initialize midi device
@@ -58,20 +58,21 @@ void midi_send_programchange(MidiDevice * device, uint8_t chan, uint8_t num);
 void midi_send_channelpressure(MidiDevice * device, uint8_t chan, uint8_t amt);
 
 //realtime
-inline void midi_send_clock(MidiDevice * device);
-inline void midi_send_tick(MidiDevice * device);
-inline void midi_send_start(MidiDevice * device);
-inline void midi_send_continue(MidiDevice * device);
-inline void midi_send_stop(MidiDevice * device);
-inline void midi_send_activesense(MidiDevice * device);
-inline void midi_send_reset(MidiDevice * device);
+void midi_send_clock(MidiDevice * device);
+void midi_send_tick(MidiDevice * device);
+void midi_send_start(MidiDevice * device);
+void midi_send_continue(MidiDevice * device);
+void midi_send_stop(MidiDevice * device);
+void midi_send_activesense(MidiDevice * device);
+void midi_send_reset(MidiDevice * device);
 
 //more obscure
 void midi_send_tcquaterframe(MidiDevice * device, uint8_t time); //range 0..16383
 void midi_send_songposition(MidiDevice * device, uint16_t pos);
 void midi_send_songselect(MidiDevice * device, uint8_t song);
-inline void midi_send_tunerequest(MidiDevice * device);
-inline void midi_send_byte(MidiDevice * device, uint8_t b);
+void midi_send_tunerequest(MidiDevice * device);
+void midi_send_byte(MidiDevice * device, uint8_t b);
+void midi_send_data(MidiDevice * device, uint8_t count, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 
 
 //input callback registration ***********************

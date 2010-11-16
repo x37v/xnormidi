@@ -188,6 +188,11 @@ void midi_send_byte(MidiDevice * device, uint8_t b){
 	device->send_func(device, 1, b, 0, 0);
 }
 
+void midi_send_data(MidiDevice * device, uint8_t count, uint8_t byte0, uint8_t byte1, uint8_t byte2){
+   if (count > 3)
+      count = 3;
+   device->send_func(device, count, byte0, byte1, byte2);
+}
 
 
 void midi_register_cc_callback(MidiDevice * device, midi_three_byte_func_t func){
