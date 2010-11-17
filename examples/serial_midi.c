@@ -26,7 +26,7 @@ MidiDevice * serial_midi_device(void) {
 
 MidiDevice* serial_midi_init(uint16_t clockScale, bool out, bool in){
    //send up the device
-   midi_init_device(&midi_device);
+   midi_device_init(&midi_device);
    midi_device_set_send_func(&midi_device, serial_midi_send);
 
 	// Set baud rate

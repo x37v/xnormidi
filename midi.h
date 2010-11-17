@@ -41,11 +41,11 @@ midi_packet_length_t midi_packet_length(uint8_t status);
 
 
 //initialize midi device
-void midi_init_device(MidiDevice * device); // [implementation in midi_device.c]
+void midi_device_init(MidiDevice * device); // [implementation in midi_device.c]
 
 //process input data
 //you need to call this if you expect your input callbacks to be called
-void midi_process(MidiDevice * device); // [implementation in midi_device.c]
+void midi_device_process(MidiDevice * device); // [implementation in midi_device.c]
 
 
 //send functions **********************

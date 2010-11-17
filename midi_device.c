@@ -13,7 +13,7 @@
 void midi_input_callbacks(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 void midi_process_byte(MidiDevice * device, uint8_t input);
 
-void midi_init_device(MidiDevice * device){
+void midi_device_init(MidiDevice * device){
    device->input_state = IDLE;
    device->input_count = 0;
    bytequeue_init(&device->input_queue, device->input_queue_data, MIDI_INPUT_QUEUE_LENGTH);
@@ -64,7 +64,7 @@ void midi_device_set_send_func(MidiDevice * device, midi_var_byte_func_t send_fu
    device->send_func = send_func;
 }
 
-void midi_process(MidiDevice * device) {
+void midi_device_process(MidiDevice * device) {
    //pull stuff off the queue and process
    byteQueueIndex_t len = bytequeue_length(&device->input_queue);
    uint16_t i;

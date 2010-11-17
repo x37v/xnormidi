@@ -144,7 +144,7 @@ bool anything_called() {
 }
 
 int main(void) {
-   midi_init_device(&test_device);
+   midi_device_init(&test_device);
    midi_device_set_send_func(&test_device, send_func);
 
    midi_send_cc(&test_device, 0, 0, 1);
@@ -157,7 +157,7 @@ int main(void) {
    assert(!realtime_called);
    midi_device_input(&test_device, 3, 0xB0, 0, 1);
    midi_device_input(&test_device, 1, MIDI_CLOCK, 0, 0);
-   midi_process(&test_device);
+   midi_device_process(&test_device);
    assert(fallthrough_called);
    assert(realtime_called);
 
@@ -170,14 +170,14 @@ int main(void) {
    midi_device_input(&test_device, 1, 0, 0, 0);
    midi_device_input(&test_device, 1, MIDI_START, 0, 0);
    midi_device_input(&test_device, 1, 1, 0, 0);
-   midi_process(&test_device);
+   midi_device_process(&test_device);
    assert(fallthrough_called);
    assert(realtime_called);
 
    midi_register_cc_callback(&test_device, cc_callback);
    assert(!cc_called);
    midi_device_input(&test_device, 3, 0xB0, 0, 1);
-   midi_process(&test_device);
+   midi_device_process(&test_device);
    assert(cc_called);
 
    reset();
@@ -188,7 +188,7 @@ int main(void) {
    midi_device_input(&test_device, 1, 0, 0, 0);
    midi_device_input(&test_device, 1, MIDI_START, 0, 0);
    midi_device_input(&test_device, 1, 1, 0, 0);
-   midi_process(&test_device);
+   midi_device_process(&test_device);
    assert(cc_called);
    assert(realtime_called);
 
@@ -196,7 +196,7 @@ int main(void) {
    assert(!anything_called());
    midi_device_input(&test_device, 1, 0xB0, 0, 0);
    midi_device_input(&test_device, 1, 0, 0, 0);
-   midi_process(&test_device);
+   midi_device_process(&test_device);
    assert(!anything_called());
 
    printf("\n\nTEST PASSED!\n\n");
