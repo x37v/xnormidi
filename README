@@ -1,5 +1,9 @@
 embedded midi is a library written by Alex Norman.
 
+This project used to be called avr-midi but it should be useful for other C
+projects, thought it is intended for embedded work, so that is why it has been
+renamed.
+
 It is licenced with the GPL v3 licence, see the file "COPYING" for more info.
 
 Please send me bug info, bug fixes, general improvements, etc.  alex@x37v.info
