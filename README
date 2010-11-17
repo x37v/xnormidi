@@ -1,14 +1,10 @@
-avr-midi is a library written by Alex Norman with help from the Atmega16 manual
-(usart) and http://www.borg.com/~jglatt/tech/midispec.htm
+embedded midi is a library written by Alex Norman.
 
 It is licenced with the GPL v3 licence, see the file "COPYING" for more info.
 
 Please send me bug info, bug fixes, general improvements, etc.  alex@x37v.info
 
-The important files are "midi.c" and "midi.h".  I have provided some examples
-and Makefile to show you how to use avr-midi for the atmega16.  This should
-work for other avr chips [maybe with some modification] as well, but has only
-been tested on the atmega16.
+This is the development version which has only been tested on a atmega32u2.
 
 my website is here:
 http://www.x37v.info
