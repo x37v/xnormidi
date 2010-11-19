@@ -26,7 +26,7 @@
 #define SIZE 1028
 
 int main(int argc, char * argv[]) {
-   unsigned int i;
+   unsigned int i, j;
    uint8_t orig[SIZE];
    uint8_t unpacked[SIZE];
    uint8_t * packed = malloc(sizeof(uint8_t) * sysex_byte_packed_length(SIZE));
@@ -42,6 +42,9 @@ int main(int argc, char * argv[]) {
    for (i = 1; i < SIZE; i++) {
       uint16_t res_size = sysex_byte_pack(packed, orig, i);
       assert(res_size == sysex_byte_packed_length(i));
+      //make sure that the top bit isn't set
+      for (j = 0; j < res_size; j++)
+         assert( (packed[i] & 0x80) == 0);
       res_size = sysex_byte_unpack(unpacked, packed, res_size);
       assert(0 == memcmp(orig, unpacked, i));
    }
