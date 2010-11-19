@@ -29,6 +29,8 @@ typedef enum {
    THREE_BYTE_MESSAGE = 3,
    SYSEX_MESSAGE} input_state_t;
 
+typedef void (* midi_no_byte_func_t)(MidiDevice * device);
+
 //this structure represents the input and output functions and processing data
 //for a midi device.
 //A device can represent an actual physical device [serial port, usb port] or
@@ -60,6 +62,9 @@ struct _midi_device {
    //called if registered, independent of other callbacks
    midi_var_byte_func_t input_catchall_callback;
 
+   //pre input processing function
+   midi_no_byte_func_t pre_input_process_callback;
+
    //for internal input processing
    uint8_t input_buffer[3];
    input_state_t input_state;
@@ -77,5 +82,8 @@ void midi_device_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t 
 //that you can call the various midi send functions without worrying about
 //locking.
 void midi_device_set_send_func(MidiDevice * device, midi_var_byte_func_t send_func);
+
+//if you need to run a function to grab input before you pass it to midi_device_input, set it here.
+void midi_device_set_pre_input_process_func(MidiDevice * device, midi_no_byte_func_t pre_process_func);
 
 #endif
