@@ -1,16 +1,26 @@
 CFLAGS += -I. -I../ -g -Wall -DDEBUG 
-SRC = dummy_device.c ../midi.c ../midi_device.c ../bytequeue/bytequeue.c
-OBJ = ${SRC:.c=.o}
+DUMMY_SRC = dummy_device.c ../midi.c ../midi_device.c ../bytequeue/bytequeue.c
+DUMMY_OBJ = ${DUMMY_SRC:.c=.o}
+
+SYSEX_SRC = sysex_test.c ../sysex_tools.c
+SYSEX_OBJ = ${SYSEX_SRC:.c=.o}
 
 .c.o:
 	@echo CC $<
 	@$(CC) -c $(CFLAGS) -o $*.o $<
 
-test: clean $(OBJ)
-	@$(CC) -o test $(OBJ)
+dummy_test: clean $(DUMMY_OBJ)
+	@$(CC) -o dummy_test $(DUMMY_OBJ)
+
+sysex_test: clean $(SYSEX_OBJ)
+	@$(CC) -o sysex_test $(SYSEX_OBJ)
+
+run_tests: sysex_test dummy_test
+	./dummy_test
+	./sysex_test
 
 #-------------------
 clean:
-	rm -f *.o *.map *.out *.hex *.tar.gz ../*.o ../bytequeue/*.o test
+	rm -f *.o *.map *.out *.hex *.tar.gz ../*.o ../bytequeue/*.o dummy_test sysex_test
 #-------------------
 
