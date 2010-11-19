@@ -45,6 +45,8 @@ int main(int argc, char * argv[]) {
       //make sure that the top bit isn't set
       for (j = 0; j < res_size; j++)
          assert( (packed[i] & 0x80) == 0);
+      //just in case, zero out unpacked..
+      memset(unpacked, SIZE, 0);
       res_size = sysex_byte_unpack(unpacked, packed, res_size);
       assert(0 == memcmp(orig, unpacked, i));
    }
