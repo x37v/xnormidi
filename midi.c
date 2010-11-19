@@ -1,7 +1,5 @@
-//midi for avr chips,
-//Copyright 2008 Alex Norman
-//writen by Alex Norman with help from the Atmega16 manual (usart) and
-//http://www.borg.com/~jglatt/tech/midispec.htm
+//midi for embedded chips,
+//Copyright 2010 Alex Norman
 //
 //This file is part of avr-midi.
 //
@@ -17,7 +15,6 @@
 //
 //You should have received a copy of the GNU General Public License
 //along with avr-midi.  If not, see <http://www.gnu.org/licenses/>.
-//
 
 #include "midi.h"
 #define MIN(x,y) (((x) < (y)) ? (x) : (y)) 
