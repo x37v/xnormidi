@@ -77,14 +77,6 @@ USB_ClassInfo_MIDI_Device_t USB_MIDI_Interface =
 
 //we disregard cnt because we assume all other bytes are zero and we always send 4 bytes
 void usb_send_func(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
-   /* Device must be connected and configured for the task to run */
-   if (USB_DeviceState != DEVICE_STATE_Configured)
-      return;
-
-   Endpoint_SelectEndpoint(MIDI_STREAM_IN_EPNUM);
-
-   while (!Endpoint_IsINReady());
-
    MIDI_EventPacket_t event;
    event.CableNumber = 0;
    event.Command = byte0 >> 4;
