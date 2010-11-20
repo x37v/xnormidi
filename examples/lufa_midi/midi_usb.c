@@ -52,6 +52,28 @@ void SetupHardware(void);
 void EVENT_USB_Device_Connect(void);
 void EVENT_USB_Device_Disconnect(void);
 void EVENT_USB_Device_ConfigurationChanged(void);
+void EVENT_USB_Device_ControlRequest(void);
+
+/** LUFA MIDI Class driver interface configuration and state information. This structure is
+ *  passed to all MIDI Class driver functions, so that multiple instances of the same class
+ *  within a device can be differentiated from one another.
+ */
+
+USB_ClassInfo_MIDI_Device_t USB_MIDI_Interface =
+{
+   .Config =
+   {
+      .StreamingInterfaceNumber = 1,
+
+      .DataINEndpointNumber      = MIDI_STREAM_IN_EPNUM,
+      .DataINEndpointSize        = MIDI_STREAM_EPSIZE,
+      .DataINEndpointDoubleBank  = false,
+
+      .DataOUTEndpointNumber     = MIDI_STREAM_OUT_EPNUM,
+      .DataOUTEndpointSize       = MIDI_STREAM_EPSIZE,
+      .DataOUTEndpointDoubleBank = false,
+   },
+	};
 
 //we disregard cnt because we assume all other bytes are zero and we always send 4 bytes
 void usb_send_func(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
@@ -70,11 +92,9 @@ void usb_send_func(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte
    event.Data2 = byte1;
    event.Data3 = byte2;
 
-   /* Write the MIDI event packet to the endpoint */
-   Endpoint_Write_Stream_LE(&event, sizeof(event));
-
-   /* Send the data in the endpoint to the host */
-   Endpoint_ClearIN();
+   MIDI_Device_SendEventPacket(&USB_MIDI_Interface, &event);
+   MIDI_Device_Flush(&USB_MIDI_Interface);
+   MIDI_Device_USBTask(&USB_MIDI_Interface);
    USB_USBTask();
 }
 
@@ -82,13 +102,8 @@ void usb_get_midi(MidiDevice * device) {
    /* Select the MIDI OUT stream */
    Endpoint_SelectEndpoint(MIDI_STREAM_OUT_EPNUM);
 
-   /* Check if a MIDI command has been received */
-   while (Endpoint_IsOUTReceived())
-   {
-      MIDI_EventPacket_t event;
-
-      /* Read the MIDI event packet from the endpoint */
-      Endpoint_Read_Stream_LE(&event, sizeof(event));
+   MIDI_EventPacket_t event;
+   while (MIDI_Device_ReceiveEventPacket(&USB_MIDI_Interface, &event)) {
 
       midi_packet_length_t length = midi_packet_length(event.Data1);
 
@@ -97,13 +112,8 @@ void usb_get_midi(MidiDevice * device) {
       if (length != UNDEFINED)
          midi_device_input(device, length, event.Data1, event.Data2, event.Data3);
 
-      /* If the endpoint is now empty, clear the bank */
-      if (!(Endpoint_BytesInEndpoint()))
-      {
-         /* Clear the endpoint ready for new packet */
-         Endpoint_ClearOUT();
-      }
    }
+   MIDI_Device_USBTask(&USB_MIDI_Interface);
    USB_USBTask();
 }
 
@@ -130,32 +140,30 @@ void SetupHardware(void)
    USB_Init();
 }
 
-/** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs. */
+/** Event handler for the library USB Connection event. */
 void EVENT_USB_Device_Connect(void)
 {
    //set some LED?
 }
 
-/** Event handler for the USB_Disconnect event. This indicates that the device is no longer connected to a host via
- *  the status LEDs, disables the sample update and PWM output timers and stops the USB and MIDI management tasks.
- */
+/** Event handler for the library USB Disconnection event. */
 void EVENT_USB_Device_Disconnect(void)
 {
    //set some LED?
 }
 
-/** Event handler for the USB_ConfigurationChanged event. This is fired when the host set the current configuration
- *  of the USB device after enumeration - the device endpoints are configured and the MIDI management task started.
- */
+/** Event handler for the library USB Configuration Changed event. */
 void EVENT_USB_Device_ConfigurationChanged(void)
 {
-   bool ConfigSuccess = true;
+	bool ConfigSuccess = true;
 
-   /* Setup MIDI Data Endpoints */
-   ConfigSuccess &= Endpoint_ConfigureEndpoint(MIDI_STREAM_IN_EPNUM, EP_TYPE_BULK, ENDPOINT_DIR_IN,
-         MIDI_STREAM_EPSIZE, ENDPOINT_BANK_SINGLE);
-   ConfigSuccess &= Endpoint_ConfigureEndpoint(MIDI_STREAM_OUT_EPNUM, EP_TYPE_BULK, ENDPOINT_DIR_OUT,
-         MIDI_STREAM_EPSIZE, ENDPOINT_BANK_SINGLE);
+	ConfigSuccess &= MIDI_Device_ConfigureEndpoints(&USB_MIDI_Interface);
    //set some LED?
+}
+
+/** Event handler for the library USB Control Request reception event. */
+void EVENT_USB_Device_ControlRequest(void)
+{
+	MIDI_Device_ProcessControlRequest(&USB_MIDI_Interface);
 }
 
