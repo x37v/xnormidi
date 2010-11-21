@@ -23,7 +23,7 @@ examples:
 
 dist: clean
 	mkdir -p ${DISTDIR}
-	cp -R COPYING Makefile *.c *.h README examples/ ${DISTDIR}
+	cp -R COPYING Makefile *.c *.h README examples/ test/ bytequeue/ ${DISTDIR}
 	tar -czf ${DISTDIR}.tar.gz ${DISTDIR}
 	rm -rf ${DISTDIR}
 

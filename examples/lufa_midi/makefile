@@ -134,7 +134,8 @@ SRC = midi_usb.c   \
 	  ../../midi.c \
 	  ../../midi_device.c \
 	  ../../bytequeue/bytequeue.c \
-	  $(LUFA_SRC_USB)                                             \
+	  ../../bytequeue/interrupt_setting.c \
+	  $(LUFA_SRC_USB)                     \
 	  $(LUFA_SRC_USBCLASS)
 
 

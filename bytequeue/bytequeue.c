@@ -18,51 +18,48 @@
 //along with avr-bytequeue.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "bytequeue.h"
-#include <avr/interrupt.h>
+#include "interrupt_setting.h"
 
 void bytequeue_init(byteQueue_t * queue, uint8_t * dataArray, byteQueueIndex_t arrayLen){
-	queue->length = arrayLen;
-	queue->data = dataArray;
-	queue->start = queue->end = 0;
+   queue->length = arrayLen;
+   queue->data = dataArray;
+   queue->start = queue->end = 0;
 }
 
 bool bytequeue_enqueue(byteQueue_t * queue, uint8_t item){
-	uint8_t sreg = SREG;
-	cli();
-	//full
-	if(((queue->end + 1) % queue->length) == queue->start){
-		SREG = sreg;
-		return false;
-	} else {
-		queue->data[queue->end] = item;
-		queue->end = (queue->end + 1) % queue->length;
-		SREG = sreg;
-		return true;
-	}
+   interrupt_setting_t setting = store_and_clear_interrupt();
+   //full
+   if(((queue->end + 1) % queue->length) == queue->start){
+      restore_interrupt_setting(setting);
+      return false;
+   } else {
+      queue->data[queue->end] = item;
+      queue->end = (queue->end + 1) % queue->length;
+      restore_interrupt_setting(setting);
+      return true;
+   }
 }
 
 byteQueueIndex_t bytequeue_length(byteQueue_t * queue){
-	byteQueueIndex_t len;
-	uint8_t sreg = SREG;
-	cli();
-	if(queue->end >= queue->start)
-		len = queue->end - queue->start;
-	else
-		len = (queue->length - queue->start) + queue->end;
-	SREG = sreg;
-	return len;
+   byteQueueIndex_t len;
+   interrupt_setting_t setting = store_and_clear_interrupt();
+   if(queue->end >= queue->start)
+      len = queue->end - queue->start;
+   else
+      len = (queue->length - queue->start) + queue->end;
+   restore_interrupt_setting(setting);
+   return len;
 }
 
 //we don't need to avoid interrupts if there is only one reader
 uint8_t bytequeue_get(byteQueue_t * queue, byteQueueIndex_t index){
-	return queue->data[(queue->start + index) % queue->length];
+   return queue->data[(queue->start + index) % queue->length];
 }
 
 //we just update the start index to remove elements
 void bytequeue_remove(byteQueue_t * queue, byteQueueIndex_t numToRemove){
-	uint8_t sreg = SREG;
-	cli();
-	queue->start = (queue->start + numToRemove) % queue->length;
-	SREG = sreg;
+   interrupt_setting_t setting = store_and_clear_interrupt();
+   queue->start = (queue->start + numToRemove) % queue->length;
+   restore_interrupt_setting(setting);
 }
 

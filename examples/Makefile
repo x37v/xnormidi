@@ -11,8 +11,8 @@ UISP = uisp -dprog=stk500 -dserial=/dev/ttyUSB0 -dpart=$(PART)
 current: basic.hex
 #-------------------
 
-BASICSRC = basic.c ../midi.c ../midi_device.c ../bytequeue/bytequeue.c serial_midi.c
-SPITSRC  = spit.c ../midi.c serial_midi.c
+BASICSRC = basic.c ../midi.c ../midi_device.c ../bytequeue/bytequeue.c ../bytequeue/interrupt_setting.c serial_midi.c
+SPITSRC  = spit.c ../midi.c serial_midi.c 
 
 BASICOBJ = ${BASICSRC:.c=.o}
 SPITOBJ  = ${SPITSRC:.c=.o}
