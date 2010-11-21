@@ -38,7 +38,7 @@ typedef void (* midi_no_byte_func_t)(MidiDevice * device);
 //You should not need to modify this structure directly.
 struct _midi_device {
    //output send function
-	midi_var_byte_func_t send_func;
+   midi_var_byte_func_t send_func;
 
    //********input callbacks
    //three byte funcs

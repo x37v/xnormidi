@@ -66,7 +66,7 @@ void midi_device_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t 
    input[0] = byte0;
    input[1] = byte1;
    input[2] = byte2;
-   
+
    //clamp range
    if (cnt > 3)
       cnt = 3;
@@ -198,7 +198,7 @@ void midi_process_byte(MidiDevice * device, uint8_t input) {
 
 void midi_input_callbacks(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
 #ifdef DEBUG
-      printf("callback func %d %x %x %x\n", cnt, byte0, byte1, byte2);
+   printf("callback func %d %x %x %x\n", cnt, byte0, byte1, byte2);
 #endif
    //did we end up calling a callback?
    bool called = false;
