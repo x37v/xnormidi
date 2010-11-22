@@ -1,5 +1,5 @@
 CFLAGS += -I. -I../ -g -Wall -DDEBUG 
-DUMMY_SRC = dummy_device.c ../midi.c ../midi_device.c ../bytequeue/bytequeue.c
+DUMMY_SRC = dummy_device.c ../midi.c ../midi_device.c ../bytequeue/bytequeue.c ../bytequeue/interrupt_setting.c
 DUMMY_OBJ = ${DUMMY_SRC:.c=.o}
 
 SYSEX_SRC = sysex_test.c ../sysex_tools.c
@@ -18,6 +18,8 @@ sysex_test: clean $(SYSEX_OBJ)
 run_tests: sysex_test dummy_test
 	./dummy_test
 	./sysex_test
+
+all: run_tests
 
 #-------------------
 clean:

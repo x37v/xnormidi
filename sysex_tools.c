@@ -91,7 +91,7 @@ uint16_t sysex_byte_unpack(uint8_t *unpacked, const uint8_t *source, const uint1
          unpacked[output_start_index + j] = 0x7F & source[packed_msb_idx + j + 1];
          unpacked[output_start_index + j] |= (0x80 & (source[packed_msb_idx] << (1 + j)));
       }
-      return packed_msb_idx * 7 + remainder - 1;
+      return unpacked_full * 7 + remainder - 1;
    } else {
       return unpacked_full * 7;
    }

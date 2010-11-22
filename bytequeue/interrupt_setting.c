@@ -21,8 +21,8 @@
 //should be able to port to other systems by simply providing chip specific
 //implementations of the typedef and these functions
 
-#include <avr/interrupt.h>
 #include "interrupt_setting.h"
+#include <avr/interrupt.h>
 
 interrupt_setting_t store_and_clear_interrupt(void) {
    uint8_t sreg = SREG;
