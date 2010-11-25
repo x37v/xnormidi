@@ -26,7 +26,7 @@
  * which can be use to send data with sysex messages.  Sysex messages may only
  * contain data where the to bit is not set. 
  *
- * A byte "packed" midi message is one that contains all of the data from its
+ * A bit "packed" midi message is one that contains all of the data from its
  * original state, but does not have any of the top bits set.
  *
  * Every 7 bytes of unpacked data is converted into 8 bytes of packed data and
@@ -42,7 +42,7 @@
  *
  * @return The length, in bytes, of the message after packing.
  */
-uint16_t sysex_byte_packed_length(uint16_t unpacked_length);
+uint16_t sysex_bit_packed_length(uint16_t unpacked_length);
 
 /**
  * Compute the length of a message after it is unpacked.
@@ -51,28 +51,28 @@ uint16_t sysex_byte_packed_length(uint16_t unpacked_length);
  *
  * @return The length, in bytes, of the message after it is unpacked.
  */
-uint16_t sysex_byte_unpacked_length(uint16_t packed_length);
+uint16_t sysex_bit_unpacked_length(uint16_t packed_length);
 
 /**
  * Pack data so that it can be transmitted safely in a sysex message.
  *
- * @param packed The output data buffer, must be at least sysex_byte_packed_length(length) bytes long.
+ * @param packed The output data buffer, must be at least sysex_bit_packed_length(length) bytes long.
  * @param source The input buffer of data to be packed.
  * @param length The number of bytes from the input buffer to pack.
  * 
  * @return number of bytes packed.
  */
-uint16_t sysex_byte_pack(uint8_t *packed, const uint8_t *source, uint16_t length);
+uint16_t sysex_bit_pack(uint8_t *packed, const uint8_t *source, uint16_t length);
 
 /**
  * Unpack packed data.
  *
- * @param unpacked The output data buffer, must be at least sysex_byte_unpacked_length(length) bytes long.
+ * @param unpacked The output data buffer, must be at least sysex_bit_unpacked_length(length) bytes long.
  * @param source The input buffer of data to be unpacked.
  * @param length The number of bytes from the input buffer to unpack.
  * 
  * @return number of bytes unpacked.
  */
-uint16_t sysex_byte_unpack(uint8_t *unpacked, const uint8_t *source, uint16_t length);
+uint16_t sysex_bit_unpack(uint8_t *unpacked, const uint8_t *source, uint16_t length);
 
 #endif

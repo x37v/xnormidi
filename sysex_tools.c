@@ -18,7 +18,7 @@
 
 #include "sysex_tools.h"
 
-uint16_t sysex_byte_packed_length(uint16_t unpacked_length){
+uint16_t sysex_bit_packed_length(uint16_t unpacked_length){
    uint8_t remainder = unpacked_length % 7;
    if (remainder)
       return (unpacked_length / 7) * 8 + remainder + 1;
@@ -26,7 +26,7 @@ uint16_t sysex_byte_packed_length(uint16_t unpacked_length){
       return (unpacked_length / 7) * 8;
 }
 
-uint16_t sysex_byte_unpacked_length(uint16_t packed_length){
+uint16_t sysex_bit_unpacked_length(uint16_t packed_length){
    uint8_t remainder = packed_length % 8;
    if (remainder)
       return (packed_length / 8) * 7 + remainder - 1;
@@ -34,7 +34,7 @@ uint16_t sysex_byte_unpacked_length(uint16_t packed_length){
       return (packed_length / 8) * 7;
 }
 
-uint16_t sysex_byte_pack(uint8_t *packed, const uint8_t *source, const uint16_t length){
+uint16_t sysex_bit_pack(uint8_t *packed, const uint8_t *source, const uint16_t length){
    uint16_t packed_full = length / 7; //number of full 8 byte sections from 7 bytes of input
    uint16_t i,j;
 
@@ -67,7 +67,7 @@ uint16_t sysex_byte_pack(uint8_t *packed, const uint8_t *source, const uint16_t 
    }
 }
 
-uint16_t sysex_byte_unpack(uint8_t *unpacked, const uint8_t *source, const uint16_t length){
+uint16_t sysex_bit_unpack(uint8_t *unpacked, const uint8_t *source, const uint16_t length){
    uint16_t unpacked_full = length / 8;
    uint16_t i,j;
 
