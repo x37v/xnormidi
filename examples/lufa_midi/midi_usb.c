@@ -80,6 +80,10 @@ USB_ClassInfo_MIDI_Device_t USB_MIDI_Interface =
 #define SYSEX_ENDS_IN_2 0x6
 #define SYSEX_ENDS_IN_3 0x7
 
+#define SYS_COMMON_1 0x5
+#define SYS_COMMON_2 0x2
+#define SYS_COMMON_3 0x3
+
 void usb_send_func(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
    MIDI_EventPacket_t event;
    event.CableNumber = 0;
@@ -112,9 +116,20 @@ void usb_send_func(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte
             return; //invalid cnt
       }
    } else {
-      //TODO deal with Two-byte System Common messages like MTC, SongSelect, etc.
-      //and Three-byte System Common messages like SPP, etc.
-      event.Command = byte0 >> 4;
+      //deal with 'system common' messages
+      //TODO are there any more?
+      switch(byte0 & 0xF0){
+         case MIDI_SONGPOSITION:
+            event.Command = SYS_COMMON_3;
+            break;
+         case MIDI_SONGSELECT:
+         case MIDI_TC_QUATERFRAME:
+            event.Command = SYS_COMMON_2;
+            break;
+         default:
+            event.Command = byte0 >> 4;
+            break;
+      }
    }
 
    MIDI_Device_SendEventPacket(&USB_MIDI_Interface, &event);

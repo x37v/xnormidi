@@ -32,7 +32,7 @@ bool midi_is_realtime(uint8_t theByte){
 }
 
 midi_packet_length_t midi_packet_length(uint8_t status){
-   switch(status & MIDI_STATUSMASK){
+   switch(status & 0xF0){
       case MIDI_CC:
       case MIDI_NOTEON:
       case MIDI_NOTEOFF:
