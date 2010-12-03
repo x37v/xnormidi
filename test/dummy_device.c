@@ -26,20 +26,21 @@ MidiDevice test_device;
 uint8_t sent[3];
 uint8_t got[3];
 
-bool cc_called;
-bool noteon_called;
-bool noteoff_called;
-bool aftertouch_called;
-bool pitchbend_called;
-bool songposition_called;
-bool progchange_called;
-bool chanpressure_called;
-bool songselect_called;
-bool tc_quarterframe_called;
-bool realtime_called;
-bool tunerequest_called;
-bool fallthrough_called;
-bool catchall_called;
+unsigned int cc_called;
+unsigned int noteon_called;
+unsigned int noteoff_called;
+unsigned int aftertouch_called;
+unsigned int pitchbend_called;
+unsigned int songposition_called;
+unsigned int progchange_called;
+unsigned int chanpressure_called;
+unsigned int songselect_called;
+unsigned int tc_quarterframe_called;
+unsigned int realtime_called;
+unsigned int tunerequest_called;
+unsigned int fallthrough_called;
+unsigned int catchall_called;
+unsigned int sysex_called;
 
 void send_func(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
    //just in case
@@ -57,81 +58,88 @@ void send_func(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, 
 }
 
 void cc_callback(MidiDevice * device, uint8_t byte0, uint8_t byte1, uint8_t byte2){
-   cc_called = true;
+   cc_called++;
    got[0] = byte0;
    got[1] = byte1;
    got[2] = byte2;
 }
 void noteon_callback(MidiDevice * device, uint8_t byte0, uint8_t byte1, uint8_t byte2){
-   noteon_called = true;
+   noteon_called++;
    got[0] = byte0;
    got[1] = byte1;
    got[2] = byte2;
 }
 void noteoff_callback(MidiDevice * device, uint8_t byte0, uint8_t byte1, uint8_t byte2){
-   noteoff_called = true;
+   noteoff_called++;
    got[0] = byte0;
    got[1] = byte1;
    got[2] = byte2;
 }
 void aftertouch_callback(MidiDevice * device, uint8_t byte0, uint8_t byte1, uint8_t byte2){
-   aftertouch_called = true;
+   aftertouch_called++;
    got[0] = byte0;
    got[1] = byte1;
    got[2] = byte2;
 }
 void pitchbend_callback(MidiDevice * device, uint8_t byte0, uint8_t byte1, uint8_t byte2){
-   pitchbend_called = true;
+   pitchbend_called++;
    got[0] = byte0;
    got[1] = byte1;
    got[2] = byte2;
 }
 void songposition_callback(MidiDevice * device, uint8_t byte0, uint8_t byte1, uint8_t byte2){
-   songposition_called = true;
+   songposition_called++;
    got[0] = byte0;
    got[1] = byte1;
    got[2] = byte2;
 }
 
 void progchange_callback(MidiDevice * device, uint8_t byte0, uint8_t byte1){
-   progchange_called = true;
+   progchange_called++;
    got[0] = byte0;
    got[1] = byte1;
 }
 void chanpressure_callback(MidiDevice * device, uint8_t byte0, uint8_t byte1){
-   chanpressure_called = true;
+   chanpressure_called++;
    got[0] = byte0;
    got[1] = byte1;
 }
 void songselect_callback(MidiDevice * device, uint8_t byte0, uint8_t byte1){
-   songselect_called = true;
+   songselect_called++;
    got[0] = byte0;
    got[1] = byte1;
 }
 void tc_quarterframe_callback(MidiDevice * device, uint8_t byte0, uint8_t byte1){
-   tc_quarterframe_called = true;
+   tc_quarterframe_called++;
    got[0] = byte0;
    got[1] = byte1;
 }
 
 void realtime_callback(MidiDevice * device, uint8_t byte){
-   realtime_called = true;
+   realtime_called++;
    got[0] = byte;
 }
 void tunerequest_callback(MidiDevice * device, uint8_t byte){
-   tunerequest_called = true;
+   tunerequest_called++;
    got[0] = byte;
 }
 
 void fallthrough_callback(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
-   fallthrough_called = true;
+   fallthrough_called++;
    got[0] = byte0;
    got[1] = byte1;
    got[2] = byte2;
 }
 
 void catchall_callback(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
-   catchall_called = true;
+   catchall_called++;
+   got[0] = byte0;
+   got[1] = byte1;
+   got[2] = byte2;
+}
+
+void sysex_callback(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
+   sysex_called++;
    got[0] = byte0;
    got[1] = byte1;
    got[2] = byte2;
@@ -141,20 +149,21 @@ void reset() {
    uint8_t i;
    for(i = 0; i < 3; i++)
       got[i] = sent[i] = 0;
-   cc_called = false;
-   noteon_called = false;
-   noteoff_called = false;
-   aftertouch_called = false;
-   pitchbend_called = false;
-   songposition_called = false;
-   progchange_called = false;
-   chanpressure_called = false;
-   songselect_called = false;
-   tc_quarterframe_called = false;
-   realtime_called = false;
-   tunerequest_called = false;
-   fallthrough_called = false;
-   catchall_called = false;
+   cc_called = 0;
+   noteon_called = 0;
+   noteoff_called = 0;
+   aftertouch_called = 0;
+   pitchbend_called = 0;
+   songposition_called = 0;
+   progchange_called = 0;
+   chanpressure_called = 0;
+   songselect_called = 0;
+   tc_quarterframe_called = 0;
+   realtime_called = 0;
+   tunerequest_called = 0;
+   fallthrough_called = 0;
+   catchall_called = 0;
+   sysex_called = 0;
 }
 
 bool anything_called() {
@@ -171,7 +180,8 @@ bool anything_called() {
       realtime_called ||
       tunerequest_called ||
       fallthrough_called ||
-      catchall_called;
+      catchall_called ||
+      sysex_called;
 }
 
 int main(void) {
@@ -252,6 +262,36 @@ int main(void) {
    assert(cc_called);
    assert(realtime_called);
    assert(catchall_called);
+
+   reset();
+   assert(!anything_called());
+   midi_register_sysex_callback(&test_device, sysex_callback);
+   midi_device_input(&test_device, 3, SYSEX_BEGIN, 0, SYSEX_END);
+   midi_device_process(&test_device);
+   assert(sysex_called);
+   assert(catchall_called);
+   assert(!fallthrough_called);
+
+   reset();
+   assert(!anything_called());
+   midi_register_sysex_callback(&test_device, sysex_callback);
+   midi_device_input(&test_device, 3, SYSEX_BEGIN, 0, 0);
+   midi_device_input(&test_device, 1, SYSEX_END, 0, 0);
+   midi_device_process(&test_device);
+   assert(sysex_called == 2);
+   assert(catchall_called);
+   assert(!fallthrough_called);
+
+   reset();
+   assert(!anything_called());
+   midi_register_sysex_callback(&test_device, sysex_callback);
+   midi_device_input(&test_device, 1, SYSEX_BEGIN, 0, 0);
+   midi_device_input(&test_device, 1, 0x34, 0, 0);
+   midi_device_input(&test_device, 1, SYSEX_END, 0, 0);
+   midi_device_process(&test_device);
+   assert(sysex_called == 1);
+   assert(catchall_called);
+   assert(!fallthrough_called);
 
    //part of a message
    reset();
