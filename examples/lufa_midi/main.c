@@ -2,7 +2,7 @@
 
 //this example simply echos midi back, for now
 
-void fallthrough_callback(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
+void fallthrough_callback(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
    midi_send_data(device, cnt, byte0, byte1, byte2);
 }
 

@@ -84,6 +84,8 @@ void usb_send_func(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte
    event.Data2 = byte1;
    event.Data3 = byte2;
 
+   //TODO deal with SYSEX
+
    MIDI_Device_SendEventPacket(&USB_MIDI_Interface, &event);
    MIDI_Device_Flush(&USB_MIDI_Interface);
    MIDI_Device_USBTask(&USB_MIDI_Interface);

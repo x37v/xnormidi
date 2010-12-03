@@ -185,11 +185,10 @@ void midi_send_byte(MidiDevice * device, uint8_t b){
    device->send_func(device, 1, b, 0, 0);
 }
 
-   void midi_send_data(MidiDevice * device, uint8_t count, uint8_t byte0, uint8_t byte1, uint8_t byte2){
-      if (count > 3)
-         count = 3;
-      device->send_func(device, count, byte0, byte1, byte2);
-   }
+void midi_send_data(MidiDevice * device, uint16_t count, uint8_t byte0, uint8_t byte1, uint8_t byte2){
+   //ensure that the count passed along is always 3 or lower
+   device->send_func(device, count % 4, byte0, byte1, byte2);
+}
 
 
 void midi_register_cc_callback(MidiDevice * device, midi_three_byte_func_t func){
@@ -238,6 +237,10 @@ void midi_register_realtime_callback(MidiDevice * device, midi_one_byte_func_t f
 
 void midi_register_tunerequest_callback(MidiDevice * device, midi_one_byte_func_t func){
    device->input_tunerequest_callback = func;
+}
+
+void midi_register_sysex_callback(MidiDevice * device, midi_var_byte_func_t func){
+   device->input_sysex_callback = func;
 }
 
 void midi_register_fallthrough_callback(MidiDevice * device, midi_var_byte_func_t func){

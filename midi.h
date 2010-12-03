@@ -69,7 +69,10 @@ void midi_send_songposition(MidiDevice * device, uint16_t pos);
 void midi_send_songselect(MidiDevice * device, uint8_t song);
 void midi_send_tunerequest(MidiDevice * device);
 void midi_send_byte(MidiDevice * device, uint8_t b);
-void midi_send_data(MidiDevice * device, uint8_t count, uint8_t byte0, uint8_t byte1, uint8_t byte2);
+
+//send up to 3 bytes of data
+//% 4 is applied to count so that you can use this to pass sysex through
+void midi_send_data(MidiDevice * device, uint16_t count, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 
 
 //input callback registration ***********************
@@ -92,6 +95,9 @@ void midi_register_tc_quarterframe_callback(MidiDevice * device, midi_two_byte_f
 void midi_register_realtime_callback(MidiDevice * device, midi_one_byte_func_t func);
 void midi_register_tunerequest_callback(MidiDevice * device, midi_one_byte_func_t func);
 
+//sysex callback, cnt is the count of total bytes so far in the message, 
+//called in increments of 3 or less
+void midi_register_sysex_callback(MidiDevice * device, midi_var_byte_func_t func);
 //fall through, only called if a more specific callback isn't matched and called
 void midi_register_fallthrough_callback(MidiDevice * device, midi_var_byte_func_t func);
 //catch all, always called if registered, independent of a more specific or fallthrough call

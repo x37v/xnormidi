@@ -74,6 +74,9 @@ int main(int argc, char * argv[]) {
 
    free(packed);
 
+   printf("\n%d unpacked gives %d packed\n", 130, sysex_bit_packed_length(130));
+   printf("\n%d packed gives %d unpacked\n", 149, sysex_bit_unpacked_length(149));
+
    printf("\n%s passed!\n\n", argv[0]);
    return 0;
 }

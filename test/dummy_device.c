@@ -39,8 +39,12 @@ bool tc_quarterframe_called;
 bool realtime_called;
 bool tunerequest_called;
 bool fallthrough_called;
+bool catchall_called;
 
-void send_func(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
+void send_func(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
+   //just in case
+   cnt = cnt % 4;
+
    sent[0] = byte0;
    sent[1] = byte1;
    sent[2] = byte0;
@@ -119,8 +123,15 @@ void tunerequest_callback(MidiDevice * device, uint8_t byte){
    got[0] = byte;
 }
 
-void fallthrough_callback(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
+void fallthrough_callback(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
    fallthrough_called = true;
+   got[0] = byte0;
+   got[1] = byte1;
+   got[2] = byte2;
+}
+
+void catchall_callback(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
+   catchall_called = true;
    got[0] = byte0;
    got[1] = byte1;
    got[2] = byte2;
@@ -143,6 +154,7 @@ void reset() {
    realtime_called = false;
    tunerequest_called = false;
    fallthrough_called = false;
+   catchall_called = false;
 }
 
 bool anything_called() {
@@ -158,7 +170,8 @@ bool anything_called() {
       tc_quarterframe_called ||
       realtime_called ||
       tunerequest_called ||
-      fallthrough_called;
+      fallthrough_called ||
+      catchall_called;
 }
 
 int main(void) {
@@ -168,20 +181,46 @@ int main(void) {
    midi_send_cc(&test_device, 0, 0, 1);
    midi_send_cc(&test_device, 15, 1, 1);
 
+   reset();
    midi_register_fallthrough_callback(&test_device, fallthrough_callback);
-   midi_register_realtime_callback(&test_device, realtime_callback);
-
-   assert(!fallthrough_called);
+   assert(!anything_called());
+   midi_device_input(&test_device, 3, 0xB0, 0, 1);
+   midi_device_input(&test_device, 1, MIDI_CLOCK, 0, 0);
+   midi_device_process(&test_device);
+   assert(fallthrough_called);
    assert(!realtime_called);
+   assert(!catchall_called);
+
+   midi_register_catchall_callback(&test_device, catchall_callback);
+   reset();
+   assert(!anything_called());
+   midi_device_input(&test_device, 3, 0xB0, 0, 1);
+   midi_device_input(&test_device, 1, MIDI_CLOCK, 0, 0);
+   midi_device_process(&test_device);
+   assert(fallthrough_called);
+   assert(!realtime_called);
+   assert(catchall_called);
+
+   reset();
+   midi_register_realtime_callback(&test_device, realtime_callback);
+   assert(!anything_called());
+   midi_device_input(&test_device, 1, MIDI_CLOCK, 0, 0);
+   midi_device_process(&test_device);
+   assert(!fallthrough_called);
+   assert(realtime_called);
+   assert(catchall_called);
+
+   reset();
+   assert(!anything_called());
    midi_device_input(&test_device, 3, 0xB0, 0, 1);
    midi_device_input(&test_device, 1, MIDI_CLOCK, 0, 0);
    midi_device_process(&test_device);
    assert(fallthrough_called);
    assert(realtime_called);
+   assert(catchall_called);
 
    reset();
-   assert(!fallthrough_called);
-   assert(!realtime_called);
+   assert(!anything_called());
    //interspersed
    midi_device_input(&test_device, 1, 0xB0, 0, 0);
    midi_device_input(&test_device, 1, MIDI_CLOCK, 0, 0);
@@ -191,16 +230,19 @@ int main(void) {
    midi_device_process(&test_device);
    assert(fallthrough_called);
    assert(realtime_called);
-
-   midi_register_cc_callback(&test_device, cc_callback);
-   assert(!cc_called);
-   midi_device_input(&test_device, 3, 0xB0, 0, 1);
-   midi_device_process(&test_device);
-   assert(cc_called);
+   assert(catchall_called);
 
    reset();
-   assert(!cc_called);
-   assert(!realtime_called);
+   midi_register_cc_callback(&test_device, cc_callback);
+   assert(!anything_called());
+   midi_device_input(&test_device, 3, 0xB0, 0, 1);
+   midi_device_process(&test_device);
+   assert(!fallthrough_called);
+   assert(cc_called);
+   assert(catchall_called);
+
+   reset();
+   assert(!anything_called());
    midi_device_input(&test_device, 1, 0xB0, 0, 0);
    midi_device_input(&test_device, 1, MIDI_CLOCK, 0, 0);
    midi_device_input(&test_device, 1, 0, 0, 0);
@@ -209,7 +251,9 @@ int main(void) {
    midi_device_process(&test_device);
    assert(cc_called);
    assert(realtime_called);
+   assert(catchall_called);
 
+   //part of a message
    reset();
    assert(!anything_called());
    midi_device_input(&test_device, 1, 0xB0, 0, 0);

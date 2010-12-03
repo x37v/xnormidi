@@ -28,7 +28,7 @@
 #endif
 
 //forward declarations, internally used to call the callbacks
-void midi_input_callbacks(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
+void midi_input_callbacks(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 void midi_process_byte(MidiDevice * device, uint8_t input);
 
 void midi_device_init(MidiDevice * device){
@@ -54,6 +54,8 @@ void midi_device_init(MidiDevice * device){
    device->input_realtime_callback = NULL;
    device->input_tunerequest_callback = NULL;
 
+   //var byte functions
+   device->input_sysex_callback = NULL;
    device->input_fallthrough_callback = NULL;
    device->input_catchall_callback = NULL;
 
@@ -109,8 +111,11 @@ void midi_device_process(MidiDevice * device) {
 
 void midi_process_byte(MidiDevice * device, uint8_t input) {
    if (midi_is_realtime(input)) {
-      //call callback, don't change any state
+      //call callback, store and restore state
+      input_state_t state = device->input_state;
+      device->input_state = ONE_BYTE_MESSAGE;
       midi_input_callbacks(device, 1, input, 0, 0);
+      device->input_state = state;
    } else if (midi_is_statusbyte(input)) {
       //store the byte
       if (device->input_state != SYSEX_MESSAGE) {
@@ -119,8 +124,9 @@ void midi_process_byte(MidiDevice * device, uint8_t input) {
       }
       switch (midi_packet_length(input)) {
          case ONE:
-            device->input_state = IDLE;
+            device->input_state = ONE_BYTE_MESSAGE;;
             midi_input_callbacks(device, 1, input, 0, 0);
+            device->input_state = IDLE;
             break;
          case TWO:
             device->input_state = TWO_BYTE_MESSAGE;
@@ -136,18 +142,13 @@ void midi_process_byte(MidiDevice * device, uint8_t input) {
                   device->input_count = 1;
                   break;
                case SYSEX_END:
-                  //failsafe, should never happen
-                  if(device->input_count > 2) {
-                     device->input_state = IDLE;
-                     device->input_count = 2;
-                  }
                   //send what is left in the input buffer, set idle
-                  device->input_buffer[device->input_count] = input;
-                  device->input_state = IDLE;
+                  device->input_buffer[device->input_count % 3] = input;
                   device->input_count += 1;
                   //call the callback
                   midi_input_callbacks(device, device->input_count, 
                         device->input_buffer[0], device->input_buffer[1], device->input_buffer[2]);
+                  device->input_state = IDLE;
                   break;
                default:
                   device->input_state = IDLE;
@@ -161,122 +162,124 @@ void midi_process_byte(MidiDevice * device, uint8_t input) {
             break;
       }
    } else {
-      //failsafe, should never happen
-      if(device->input_count > 2)
-         device->input_state = IDLE;
-
       if (device->input_state != IDLE) {
          //store the byte
-         device->input_buffer[device->input_count] = input;
+         device->input_buffer[device->input_count % 3] = input;
          //increment count
          device->input_count += 1;
-         switch(device->input_count) {
+
+         switch(device->input_count % 4) {
             case 3:
-               if (device->input_state != SYSEX_MESSAGE)
-                  device->input_state = IDLE;
-               device->input_count = 0;
                //call callback
                midi_input_callbacks(device, 3,
                      device->input_buffer[0], device->input_buffer[1], device->input_buffer[2]);
+               if (device->input_state != SYSEX_MESSAGE)
+                  device->input_state = IDLE;
                break;
             case 2:
                if (device->input_state == TWO_BYTE_MESSAGE) {
-                  device->input_state = IDLE;
                   //call callback
                   midi_input_callbacks(device, 2, device->input_buffer[0], device->input_buffer[1], 0);
+                  device->input_state = IDLE;
                }
                break;
             case 1:
             default:
-               //shouldn't happen
-               device->input_state = IDLE;
+               //one byte messages are dealt with directly
                break;
          }
       }
    }
 }
 
-void midi_input_callbacks(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
+void midi_input_callbacks(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
 #ifdef DEBUG
    printf("callback func %d %x %x %x\n", cnt, byte0, byte1, byte2);
 #endif
    //did we end up calling a callback?
    bool called = false;
-   switch (cnt) {
-      case 3:
-         {
-            midi_three_byte_func_t func = NULL;
-            switch (byte0 & 0xF0) {
-               case MIDI_CC:
-                  func = device->input_cc_callback;
-                  break;
-               case MIDI_NOTEON:
-                  func = device->input_noteon_callback;
-                  break;
-               case MIDI_NOTEOFF:
-                  func = device->input_noteoff_callback;
-                  break;
-               case MIDI_AFTERTOUCH:
-                  func = device->input_aftertouch_callback;
-                  break;
-               case MIDI_PITCHBEND:
-                  func = device->input_pitchbend_callback;
-                  break;
-               case MIDI_SONGPOSITION:
-                  func = device->input_songposition_callback;
-                  break;
-               default:
-                  break;
+   if (device->input_state == SYSEX_MESSAGE) {
+      if (device->input_sysex_callback) {
+         device->input_sysex_callback(device, cnt, byte0, byte1, byte2);
+         called = true;
+      }
+   } else {
+      switch (cnt) {
+         case 3:
+            {
+               midi_three_byte_func_t func = NULL;
+               switch (byte0 & 0xF0) {
+                  case MIDI_CC:
+                     func = device->input_cc_callback;
+                     break;
+                  case MIDI_NOTEON:
+                     func = device->input_noteon_callback;
+                     break;
+                  case MIDI_NOTEOFF:
+                     func = device->input_noteoff_callback;
+                     break;
+                  case MIDI_AFTERTOUCH:
+                     func = device->input_aftertouch_callback;
+                     break;
+                  case MIDI_PITCHBEND:
+                     func = device->input_pitchbend_callback;
+                     break;
+                  case MIDI_SONGPOSITION:
+                     func = device->input_songposition_callback;
+                     break;
+                  default:
+                     break;
+               }
+               if(func) {
+                  func(device, byte0, byte1, byte2);
+                  called = true;
+               }
             }
-            if(func) {
-               func(device, byte0, byte1, byte2);
-               called = true;
+            break;
+         case 2:
+            {
+               midi_two_byte_func_t func = NULL;
+               switch (byte0 & 0xF0) {
+                  case MIDI_PROGCHANGE:
+                     func = device->input_progchange_callback;
+                     break;
+                  case MIDI_CHANPRESSURE:
+                     func = device->input_chanpressure_callback;
+                     break;
+                  case MIDI_SONGSELECT:
+                     func = device->input_songselect_callback;
+                     break;
+                  case MIDI_TC_QUATERFRAME:
+                     func = device->input_tc_quaterframe_callback;
+                     break;
+                  default:
+                     break;
+               }
+               if(func) {
+                  func(device, byte0, byte1);
+                  called = true;
+               }
             }
-         }
-         break;
-      case 2:
-         {
-            midi_two_byte_func_t func = NULL;
-            switch (byte0 & 0xF0) {
-               case MIDI_PROGCHANGE:
-                  func = device->input_progchange_callback;
-                  break;
-               case MIDI_CHANPRESSURE:
-                  func = device->input_chanpressure_callback;
-                  break;
-               case MIDI_SONGSELECT:
-                  func = device->input_songselect_callback;
-                  break;
-               case MIDI_TC_QUATERFRAME:
-                  func = device->input_tc_quaterframe_callback;
-                  break;
-               default:
-                  break;
+            break;
+         case 1:
+            {
+               midi_one_byte_func_t func = NULL;
+               if (midi_is_realtime(byte0))
+                  func = device->input_realtime_callback;
+               else if (byte0 == MIDI_TUNEREQUEST)
+                  func = device->input_tunerequest_callback;
+               if (func) {
+                  func(device, byte0);
+                  called = true;
+               }
             }
-            if(func) {
-               func(device, byte0, byte1);
-               called = true;
-            }
-         }
-         break;
-      case 1:
-         {
-            midi_one_byte_func_t func = NULL;
-            if (midi_is_realtime(byte0))
-               func = device->input_realtime_callback;
-            else if (byte0 == MIDI_TUNEREQUEST)
-               func = device->input_tunerequest_callback;
-            if (func) {
-               func(device, byte0);
-               called = true;
-            }
-         }
-         break;
-      default:
-         //just in case
-         if (cnt > 3)
-            cnt = 0;
-         break;
+            break;
+         default:
+            //just in case
+            if (cnt > 3)
+               cnt = 0;
+            break;
+      }
    }
 
    //if there is fallthrough default callback and we haven't called a more specific one, 

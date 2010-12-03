@@ -25,6 +25,7 @@
 
 typedef enum {
    IDLE, 
+   ONE_BYTE_MESSAGE = 1,
    TWO_BYTE_MESSAGE = 2, 
    THREE_BYTE_MESSAGE = 3,
    SYSEX_MESSAGE} input_state_t;
@@ -57,6 +58,9 @@ struct _midi_device {
    midi_one_byte_func_t input_realtime_callback;
    midi_one_byte_func_t input_tunerequest_callback;
 
+   //sysex, cnt is the count of bytes in the sysex message
+   midi_var_byte_func_t input_sysex_callback;
+
    //only called if more specific callback is not matched
    midi_var_byte_func_t input_fallthrough_callback;
    //called if registered, independent of other callbacks
@@ -68,7 +72,7 @@ struct _midi_device {
    //for internal input processing
    uint8_t input_buffer[3];
    input_state_t input_state;
-   uint8_t input_count;
+   uint16_t input_count;
 
    //for queueing data between the input and the processing functions
    uint8_t input_queue_data[MIDI_INPUT_QUEUE_LENGTH];
