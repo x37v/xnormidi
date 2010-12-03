@@ -75,16 +75,47 @@ USB_ClassInfo_MIDI_Device_t USB_MIDI_Interface =
    },
 	};
 
-//we disregard cnt because we assume all other bytes are zero and we always send 4 bytes
+#define SYSEX_START_OR_CONT 0x4
+#define SYSEX_ENDS_IN_1 0x5
+#define SYSEX_ENDS_IN_2 0x6
+#define SYSEX_ENDS_IN_3 0x7
+
 void usb_send_func(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
    MIDI_EventPacket_t event;
    event.CableNumber = 0;
-   event.Command = byte0 >> 4;
    event.Data1 = byte0;
    event.Data2 = byte1;
    event.Data3 = byte2;
 
-   //TODO deal with SYSEX
+   //if the length is undefined we assume it is a SYSEX message
+   if (midi_packet_length(byte0) == UNDEFINED) {
+      switch(cnt) {
+         case 3:
+            if (byte2 == SYSEX_END)
+               event.Command = SYSEX_ENDS_IN_3;
+            else
+               event.Command = SYSEX_START_OR_CONT;
+            break;
+         case 2:
+            if (byte1 == SYSEX_END)
+               event.Command = SYSEX_ENDS_IN_2;
+            else
+               event.Command = SYSEX_START_OR_CONT;
+            break;
+         case 1:
+            if (byte0 == SYSEX_END)
+               event.Command = SYSEX_ENDS_IN_1;
+            else
+               event.Command = SYSEX_START_OR_CONT;
+            break;
+         default:
+            return; //invalid cnt
+      }
+   } else {
+      //TODO deal with Two-byte System Common messages like MTC, SongSelect, etc.
+      //and Three-byte System Common messages like SPP, etc.
+      event.Command = byte0 >> 4;
+   }
 
    MIDI_Device_SendEventPacket(&USB_MIDI_Interface, &event);
    MIDI_Device_Flush(&USB_MIDI_Interface);
