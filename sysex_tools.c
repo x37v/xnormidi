@@ -18,82 +18,82 @@
 
 #include "sysex_tools.h"
 
-uint16_t sysex_bit_packed_length(uint16_t unpacked_length){
-   uint8_t remainder = unpacked_length % 7;
+uint16_t sysex_encoded_length(uint16_t decoded_length){
+   uint8_t remainder = decoded_length % 7;
    if (remainder)
-      return (unpacked_length / 7) * 8 + remainder + 1;
+      return (decoded_length / 7) * 8 + remainder + 1;
    else
-      return (unpacked_length / 7) * 8;
+      return (decoded_length / 7) * 8;
 }
 
-uint16_t sysex_bit_unpacked_length(uint16_t packed_length){
-   uint8_t remainder = packed_length % 8;
+uint16_t sysex_decoded_length(uint16_t encoded_length){
+   uint8_t remainder = encoded_length % 8;
    if (remainder)
-      return (packed_length / 8) * 7 + remainder - 1;
+      return (encoded_length / 8) * 7 + remainder - 1;
    else
-      return (packed_length / 8) * 7;
+      return (encoded_length / 8) * 7;
 }
 
-uint16_t sysex_bit_pack(uint8_t *packed, const uint8_t *source, const uint16_t length){
-   uint16_t packed_full = length / 7; //number of full 8 byte sections from 7 bytes of input
+uint16_t sysex_encode(uint8_t *encoded, const uint8_t *source, const uint16_t length){
+   uint16_t encoded_full = length / 7; //number of full 8 byte sections from 7 bytes of input
    uint16_t i,j;
 
-   //fill out the fully packed sections
-   for(i = 0; i < packed_full; i++) {
-      uint16_t packed_msb_idx = i * 8;
+   //fill out the fully encoded sections
+   for(i = 0; i < encoded_full; i++) {
+      uint16_t encoded_msb_idx = i * 8;
       uint16_t input_start_idx = i * 7;
-      packed[packed_msb_idx] = 0;
+      encoded[encoded_msb_idx] = 0;
       for(j = 0; j < 7; j++){
          uint8_t current = source[input_start_idx + j];
-         packed[packed_msb_idx] |= (0x80 & current) >> (1 + j);
-         packed[packed_msb_idx + 1 + j] = 0x7F & current;
+         encoded[encoded_msb_idx] |= (0x80 & current) >> (1 + j);
+         encoded[encoded_msb_idx + 1 + j] = 0x7F & current;
       }
    }
 
    //fill out the rest if there is any more
    uint8_t remainder = length % 7;
    if (remainder) {
-      uint16_t packed_msb_idx = packed_full * 8;
-      uint16_t input_start_idx = packed_full * 7;
-      packed[packed_msb_idx] = 0;
+      uint16_t encoded_msb_idx = encoded_full * 8;
+      uint16_t input_start_idx = encoded_full * 7;
+      encoded[encoded_msb_idx] = 0;
       for(j = 0; j < remainder; j++){
          uint8_t current = source[input_start_idx + j];
-         packed[packed_msb_idx] |= (0x80 & current) >> (1 + j);
-         packed[packed_msb_idx + 1 + j] = 0x7F & current;
+         encoded[encoded_msb_idx] |= (0x80 & current) >> (1 + j);
+         encoded[encoded_msb_idx + 1 + j] = 0x7F & current;
       }
-      return packed_msb_idx + remainder + 1;
+      return encoded_msb_idx + remainder + 1;
    } else {
-      return packed_full * 8;
+      return encoded_full * 8;
    }
 }
 
-uint16_t sysex_bit_unpack(uint8_t *unpacked, const uint8_t *source, const uint16_t length){
-   uint16_t unpacked_full = length / 8;
+uint16_t sysex_decode(uint8_t *decoded, const uint8_t *source, const uint16_t length){
+   uint16_t decoded_full = length / 8;
    uint16_t i,j;
 
    if (length < 2)
       return 0;
 
-   //fill out the fully packed sections
-   for(i = 0; i < unpacked_full; i++) {
-      uint16_t packed_msb_idx = i * 8;
+   //fill out the fully encoded sections
+   for(i = 0; i < decoded_full; i++) {
+      uint16_t encoded_msb_idx = i * 8;
       uint16_t output_start_index = i * 7;
       for(j = 0; j < 7; j++){
-         unpacked[output_start_index + j] = 0x7F & source[packed_msb_idx + j + 1];
-         unpacked[output_start_index + j] |= (0x80 & (source[packed_msb_idx] << (1 + j)));
+         decoded[output_start_index + j] = 0x7F & source[encoded_msb_idx + j + 1];
+         decoded[output_start_index + j] |= (0x80 & (source[encoded_msb_idx] << (1 + j)));
       }
    }
    uint8_t remainder = length % 8;
    if (remainder) {
-      uint16_t packed_msb_idx = unpacked_full * 8;
-      uint16_t output_start_index = unpacked_full * 7;
+      uint16_t encoded_msb_idx = decoded_full * 8;
+      uint16_t output_start_index = decoded_full * 7;
       for(j = 0; j < (remainder - 1); j++) {
-         unpacked[output_start_index + j] = 0x7F & source[packed_msb_idx + j + 1];
-         unpacked[output_start_index + j] |= (0x80 & (source[packed_msb_idx] << (1 + j)));
+         decoded[output_start_index + j] = 0x7F & source[encoded_msb_idx + j + 1];
+         decoded[output_start_index + j] |= (0x80 & (source[encoded_msb_idx] << (1 + j)));
       }
-      return unpacked_full * 7 + remainder - 1;
+      return decoded_full * 7 + remainder - 1;
    } else {
-      return unpacked_full * 7;
+      return decoded_full * 7;
    }
 }
 

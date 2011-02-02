@@ -26,53 +26,53 @@
  * which can be use to send data with sysex messages.  Sysex messages may only
  * contain data where the to bit is not set. 
  *
- * A bit "packed" midi message is one that contains all of the data from its
+ * An "encoded" midi message is one that contains all of the data from its
  * original state, but does not have any of the top bits set.
  *
- * Every 7 bytes of unpacked data is converted into 8 bytes of packed data and
+ * Every 7 bytes of decoded data is converted into 8 bytes of encoded data and
  * visa-versa.  If you'd like to operate on small segments, make sure that you
- * pack in 7 byte increments and unpack in 8 byte increments.
+ * encode in 7 byte increments and decode in 8 byte increments.
  *
  */
 
 /**
- * Compute the length of a message after it is packed.
+ * Compute the length of a message after it is encoded.
  *
- * @param unpacked_length The length, in bytes, of the message to pack.
+ * @param decoded_length The length, in bytes, of the message to encode.
  *
- * @return The length, in bytes, of the message after packing.
+ * @return The length, in bytes, of the message after encodeing.
  */
-uint16_t sysex_bit_packed_length(uint16_t unpacked_length);
+uint16_t sysex_encoded_length(uint16_t decoded_length);
 
 /**
- * Compute the length of a message after it is unpacked.
+ * Compute the length of a message after it is decoded.
  *
- * @param packed_length The length, in bytes, of the packed message.
+ * @param encoded_length The length, in bytes, of the encoded message.
  *
- * @return The length, in bytes, of the message after it is unpacked.
+ * @return The length, in bytes, of the message after it is decoded.
  */
-uint16_t sysex_bit_unpacked_length(uint16_t packed_length);
+uint16_t sysex_decoded_length(uint16_t encoded_length);
 
 /**
- * Pack data so that it can be transmitted safely in a sysex message.
+ * Encode data so that it can be transmitted safely in a sysex message.
  *
- * @param packed The output data buffer, must be at least sysex_bit_packed_length(length) bytes long.
- * @param source The input buffer of data to be packed.
- * @param length The number of bytes from the input buffer to pack.
+ * @param encoded The output data buffer, must be at least sysex_encoded_length(length) bytes long.
+ * @param source The input buffer of data to be encoded.
+ * @param length The number of bytes from the input buffer to encode.
  * 
- * @return number of bytes packed.
+ * @return number of bytes encoded.
  */
-uint16_t sysex_bit_pack(uint8_t *packed, const uint8_t *source, uint16_t length);
+uint16_t sysex_encode(uint8_t *encoded, const uint8_t *source, uint16_t length);
 
 /**
- * Unpack packed data.
+ * Decode encoded data.
  *
- * @param unpacked The output data buffer, must be at least sysex_bit_unpacked_length(length) bytes long.
- * @param source The input buffer of data to be unpacked.
- * @param length The number of bytes from the input buffer to unpack.
+ * @param decoded The output data buffer, must be at least sysex_decoded_length(length) bytes long.
+ * @param source The input buffer of data to be decoded.
+ * @param length The number of bytes from the input buffer to decode.
  * 
- * @return number of bytes unpacked.
+ * @return number of bytes decoded.
  */
-uint16_t sysex_bit_unpack(uint8_t *unpacked, const uint8_t *source, uint16_t length);
+uint16_t sysex_decode(uint8_t *decoded, const uint8_t *source, uint16_t length);
 
 #endif
