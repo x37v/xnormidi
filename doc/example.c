@@ -1,4 +1,4 @@
-#include "usb_midi.h" //see the lufa_midi implementation
+#include "midi_usb.h" //see the lufa_midi implementation
 
 //echo data back
 void fallthrough_callback(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
@@ -21,10 +21,10 @@ int main(void) {
    midi_register_cc_callback(&midi_device, cc_callback);
 
    //send some messages
-   midi_send_cc(&midi_device, 0, 1, 2)
+   midi_send_cc(&midi_device, 0, 1, 2);
 
-   midi_send_noteon(&midi_device, 0, 64, 127)
-   midi_send_noteoff(&midi_device, 0, 64, 127)
+   midi_send_noteon(&midi_device, 0, 64, 127);
+   midi_send_noteoff(&midi_device, 0, 64, 127);
 
    while(1){
       //processes input from the midi device and calls the appropriate callbacks
