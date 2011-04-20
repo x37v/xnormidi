@@ -6,6 +6,7 @@ CFLAGS=-g -mmcu=$(MCU) -Wall -Wstrict-prototypes -Os -mcall-prologues
 PORT=/dev/ttyUSB0
 PART=ATmega8
 UISP = uisp -dprog=stk500 -dserial=/dev/ttyUSB0 -dpart=$(PART)
+GITHUBNAME = 'xnormidi'
 
 VERSION = 0.2.develop
 DISTDIR = avr-midi.${VERSION}
@@ -40,12 +41,12 @@ clean:
 doc:
 	@cd doc && doxygen Doxyfile
 
-post-doc: doc
+doc-post: doc
 	mkdir tmp/ && cd tmp/ && \
-		git clone git@github.com:x37v/xnormidi.git && \
-		cd xnormidi && git co gh-pages
-	cp -r doc/html/* tmp/xnormidi
-	cd tmp/xnormidi && git add . && \
+		git clone git@github.com:x37v/${GITHUBNAME}.git && \
+		cd ${GITHUBNAME} && git co gh-pages
+	cp -r doc/html/* tmp/${GITHUBNAME}
+	cd tmp/${GITHUBNAME} && git add . && \
 		git ci -a -m 'auto updated docs' && \
 		git push origin gh-pages
 	rm -rf tmp
