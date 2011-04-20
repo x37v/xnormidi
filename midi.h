@@ -398,6 +398,11 @@ void midi_register_catchall_callback(MidiDevice * device, midi_var_byte_func_t f
  * @{
  */
 
+/**
+ * \enum midi_packet_length_t
+ *
+ * An enumeration of the possible packet length values.
+ */
 typedef enum {
    UNDEFINED = 0,
    ONE = 1,
@@ -421,7 +426,8 @@ bool midi_is_realtime(uint8_t theByte);
 /**
  * @brief Find the length of the packet associated with the status byte given
  * @param status the status byte
- * @return the length of the packet
+ * @return the length of the packet, will return UNDEFINED if the byte is not
+ * a status byte or if it is a sysex status byte
  */
 midi_packet_length_t midi_packet_length(uint8_t status);
 
