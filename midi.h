@@ -22,28 +22,33 @@
 #include "midi_device.h"
 #include "midi_function_types.h"
 
-typedef enum {
-   UNDEFINED = 0,
-   ONE = 1,
-   TWO = 2,
-   THREE = 3} midi_packet_length_t;
+/**
+ * @defgroup midi_device_setup_process Device initialization and processing
+ * @brief These are method that you must use to initialize and run a device
+ *
+ * @{
+ */
 
-//general information [device independent] ****************
-//returns true if the byte given is a midi status byte
-bool midi_is_statusbyte(uint8_t theByte);
-//returns true if the byte given is a realtime status byte
-bool midi_is_realtime(uint8_t theByte);
-//returns the length of the packet associated with the status byte given
-midi_packet_length_t midi_packet_length(uint8_t status);
-
-
-//initialize midi device
+/**
+ * @brief Initialize a device
+ *
+ * You must call this before using the device in question.
+ *
+ * @param device the device to initialize
+*/
 void midi_device_init(MidiDevice * device); // [implementation in midi_device.c]
 
-//process input data
-//you need to call this if you expect your input callbacks to be called
+/**
+ * @brief Process input data
+ *
+ * This method drives the input processing, you must call this method frequently
+ * if you expect to have your input callbacks called.
+ *
+ * @param device the device to process
+*/
 void midi_device_process(MidiDevice * device); // [implementation in midi_device.c]
 
+/**@}*/
 
 /**
  * @defgroup send_functions Midi send functions
@@ -388,8 +393,49 @@ void midi_register_catchall_callback(MidiDevice * device, midi_var_byte_func_t f
 
 /**@}*/
 
+/**
+ * @defgroup midi_util Device independent utility functions.
+ * @{
+ */
+
+typedef enum {
+   UNDEFINED = 0,
+   ONE = 1,
+   TWO = 2,
+   THREE = 3} midi_packet_length_t;
+
+/**
+ * @brief Test to see if the byte given is a status byte
+ * @param theByte the byte to test
+ * @return true if the byte given is a midi status byte
+ */
+bool midi_is_statusbyte(uint8_t theByte);
+
+/**
+ * @brief Test to see if the byte given is a realtime message
+ * @param theByte the byte to test
+ * @return true if it is a realtime message, false otherwise
+ */
+bool midi_is_realtime(uint8_t theByte);
+
+/**
+ * @brief Find the length of the packet associated with the status byte given
+ * @param status the status byte
+ * @return the length of the packet
+ */
+midi_packet_length_t midi_packet_length(uint8_t status);
+
+/**@}*/
+
+/**
+ * @defgroup defines Midi status and miscellaneous utility #defines
+ *
+ * @{
+ */
+
 #define SYSEX_BEGIN 0xF0
 #define SYSEX_END 0xF7
+
 //if you and this with a byte and you get anything non-zero
 //it is a status message
 #define MIDI_STATUSMASK 0x80
@@ -421,6 +467,8 @@ void midi_register_catchall_callback(MidiDevice * device, midi_var_byte_func_t f
 
 //This ID is for educational or development use only
 #define SYSEX_EDUMANUFID 0x7D
+
+/**@}*/
 
 #endif
 
