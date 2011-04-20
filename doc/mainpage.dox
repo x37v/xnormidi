@@ -1,0 +1,17 @@
+/** @mainpage
+
+@section Overview
+
+xnor midi is a device independent midi library written by Ale xnor man.
+
+@section Licence
+
+Copyright Alex Norman, 
+<a href="http://www.gnu.org/licenses/gpl.html">GNU GPL licence Version 3.</a>
+
+@section Webpage
+
+xnor midi is available here: <a href="http://x37v.info/projects/xnormidi">xnor midi webpage</a>.
+There you will find info about how to get the source code.
+
+*/

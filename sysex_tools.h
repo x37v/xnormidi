@@ -22,6 +22,9 @@
 #include <inttypes.h>
 
 /**
+ * @file
+ * @brief Sysex utility functions
+ *
  * These functions are for converting data to and from a "midi-safe" format,
  * which can be use to send data with sysex messages.  Sysex messages may only
  * contain data where the to bit is not set. 
@@ -35,8 +38,12 @@
  *
  */
 
+/** @defgroup sysex_tools Sysex utility functions
+ * @{
+ */
+
 /**
- * Compute the length of a message after it is encoded.
+ * @brief Compute the length of a message after it is encoded.
  *
  * @param decoded_length The length, in bytes, of the message to encode.
  *
@@ -45,7 +52,7 @@
 uint16_t sysex_encoded_length(uint16_t decoded_length);
 
 /**
- * Compute the length of a message after it is decoded.
+ * @brief Compute the length of a message after it is decoded.
  *
  * @param encoded_length The length, in bytes, of the encoded message.
  *
@@ -54,7 +61,7 @@ uint16_t sysex_encoded_length(uint16_t decoded_length);
 uint16_t sysex_decoded_length(uint16_t encoded_length);
 
 /**
- * Encode data so that it can be transmitted safely in a sysex message.
+ * @brief Encode data so that it can be transmitted safely in a sysex message.
  *
  * @param encoded The output data buffer, must be at least sysex_encoded_length(length) bytes long.
  * @param source The input buffer of data to be encoded.
@@ -65,7 +72,7 @@ uint16_t sysex_decoded_length(uint16_t encoded_length);
 uint16_t sysex_encode(uint8_t *encoded, const uint8_t *source, uint16_t length);
 
 /**
- * Decode encoded data.
+ * @brief Decode encoded data.
  *
  * @param decoded The output data buffer, must be at least sysex_decoded_length(length) bytes long.
  * @param source The input buffer of data to be decoded.
@@ -74,5 +81,7 @@ uint16_t sysex_encode(uint8_t *encoded, const uint8_t *source, uint16_t length);
  * @return number of bytes decoded.
  */
 uint16_t sysex_decode(uint8_t *decoded, const uint8_t *source, uint16_t length);
+
+/**@}*/
 
 #endif

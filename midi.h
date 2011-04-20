@@ -45,7 +45,19 @@ void midi_device_init(MidiDevice * device); // [implementation in midi_device.c]
 void midi_device_process(MidiDevice * device); // [implementation in midi_device.c]
 
 
-//send functions **********************
+/**
+ * \defgroup send_functions Midi send functions
+ * @{
+ */
+
+/**
+ * @brief Send a control change message (cc) via the given device.
+ *
+ * @param device the device to use for sending
+ * @param chan the channel to send on, 0-15
+ * @param num the cc num to send
+ * @param val the value of that cc num
+*/
 void midi_send_cc(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t val);
 void midi_send_noteon(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel);
 void midi_send_noteoff(MidiDevice * device, uint8_t chan, uint8_t num, uint8_t vel);
@@ -54,7 +66,6 @@ void midi_send_pitchbend(MidiDevice * device, uint8_t chan, int16_t amt); //rang
 void midi_send_programchange(MidiDevice * device, uint8_t chan, uint8_t num);
 void midi_send_channelpressure(MidiDevice * device, uint8_t chan, uint8_t amt);
 
-//realtime
 void midi_send_clock(MidiDevice * device);
 void midi_send_tick(MidiDevice * device);
 void midi_send_start(MidiDevice * device);
@@ -63,7 +74,6 @@ void midi_send_stop(MidiDevice * device);
 void midi_send_activesense(MidiDevice * device);
 void midi_send_reset(MidiDevice * device);
 
-//more obscure
 void midi_send_tcquaterframe(MidiDevice * device, uint8_t time); //range 0..16383
 void midi_send_songposition(MidiDevice * device, uint16_t pos);
 void midi_send_songselect(MidiDevice * device, uint8_t song);
@@ -74,8 +84,13 @@ void midi_send_byte(MidiDevice * device, uint8_t b);
 //% 4 is applied to count so that you can use this to pass sysex through
 void midi_send_data(MidiDevice * device, uint16_t count, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 
+/**@}*/
 
-//input callback registration ***********************
+
+/**
+ * \defgroup input_callback_reg Input callback registration functions
+ * @{
+ */
 
 //three byte funcs
 void midi_register_cc_callback(MidiDevice * device, midi_three_byte_func_t func);
@@ -102,6 +117,8 @@ void midi_register_sysex_callback(MidiDevice * device, midi_var_byte_func_t func
 void midi_register_fallthrough_callback(MidiDevice * device, midi_var_byte_func_t func);
 //catch all, always called if registered, independent of a more specific or fallthrough call
 void midi_register_catchall_callback(MidiDevice * device, midi_var_byte_func_t func);
+
+/**@}*/
 
 #define SYSEX_BEGIN 0xF0
 #define SYSEX_END 0xF7

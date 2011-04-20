@@ -36,6 +36,9 @@ clean:
 	cd examples/ && make clean
 	cd test/ && make clean
 
-.PHONY: examples
+doc:
+	@cd doc && doxygen Doxyfile
+
+.PHONY: examples doc
 
 all: examples

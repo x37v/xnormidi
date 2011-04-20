@@ -5,3 +5,5 @@
 *.swp
 *.gz
 *.lst
+doc/latex/
+doc/html/

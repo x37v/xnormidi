@@ -32,11 +32,16 @@ typedef enum {
 
 typedef void (* midi_no_byte_func_t)(MidiDevice * device);
 
-//this structure represents the input and output functions and processing data
-//for a midi device.
-//A device can represent an actual physical device [serial port, usb port] or
-//something virtual.
-//You should not need to modify this structure directly.
+/**
+ * \struct _midi_device
+ *
+ * @brief This structure represents the input and output functions and
+ * processing data for a midi device.
+ *
+ * A device can represent an actual physical device [serial port, usb port] or
+ * something virtual.
+ * You should not need to modify this structure directly.
+ */
 struct _midi_device {
    //output send function
    midi_var_byte_func_t send_func;
@@ -79,15 +84,42 @@ struct _midi_device {
    byteQueue_t input_queue;
 };
 
-//input processing, only used if you're creating a custom device
+/**
+ * @name midi_device_input
+ * @brief Process input bytes.  This function parses bytes and calls the
+ * appropriate callbacks associated with the given device.  You use this
+ * function if you are creating a custom device and you want to have midi
+ * input.
+ *
+ * @param device the midi device to associate the input with
+ * @param cnt the number of bytes you are processing
+ * @param byte0 the first byte to process
+ * @param byte1 the second byte to process, ignored if cnt != 2
+ * @param byte2 the third byte to process , ignored if cnt != 3
+ */
 void midi_device_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
-//set send function, only used if you're creating a custom device
-//you'll most likely want the function that this calls to disable interrupts so
-//that you can call the various midi send functions without worrying about
-//locking.
+
+/**
+ * @brief Set the callback function that will be used for sending output
+ * data bytes.  This is only used if you're creating a custom device.
+ * You'll most likely want the callback function to disable interrupts so
+ * that you can call the various midi send functions without worrying about
+ * locking.
+ *
+ * \param device the midi device to associate this callback with
+ * \param send_func the callback function that will do the sending
+ */
 void midi_device_set_send_func(MidiDevice * device, midi_var_byte_func_t send_func);
 
-//if you need to run a function to grab input before you pass it to midi_device_input, set it here.
+/**
+ * @brief Set a callback which is called at the beginning of the
+ * midi_device_process call.  This can be used to poll for input
+ * data and send the data through the midi_device_input function.
+ * You'll probably only use this if you're creating a custom device.
+ *
+ * \param device the midi device to associate this callback with
+ * \param midi_no_byte_func_t the actual callback function
+ */
 void midi_device_set_pre_input_process_func(MidiDevice * device, midi_no_byte_func_t pre_process_func);
 
 #endif
