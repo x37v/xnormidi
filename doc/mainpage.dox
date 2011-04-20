@@ -14,4 +14,32 @@ Copyright Alex Norman,
 xnor midi is available here: <a href="http://x37v.info/projects/xnormidi">xnor midi webpage</a>.
 There you will find info about how to get the source code.
 
+@section Usage
+
+The most important modules are here:
+<ul>
+<li>\ref midi_device_setup_process</li>
+<li>\ref send_functions</li>
+<li>\ref input_callback_reg</li>
+</ul>
+
+If you intend to make your own device implementation you should check this module out:
+<ul>
+<li>\ref midi_device</li>
+</ul>
+
+There are some sysex utilities here:
+<ul>
+<li>\ref sysex_tools</li>
+</ul>
+
+@section Example
+
+Here is a simple example that uses the lufa usb implementation.  We setup the
+device, register some callbacks, use some send functions and call the process
+function.
+
+@include example.c
+
+
 */

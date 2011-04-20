@@ -2,6 +2,8 @@
 
 //echo data back
 void fallthrough_callback(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
+   //pass the data back to the device, using the general purpose send data
+   //function, any bytes after cnt are ignored
    midi_send_data(device, cnt, byte0, byte1, byte2);
 }
 

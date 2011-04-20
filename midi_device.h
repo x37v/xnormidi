@@ -16,6 +16,11 @@
 //You should have received a copy of the GNU General Public License
 //along with avr-midi.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @file
+ * @brief Device implementation functions
+ */
+
 #ifndef MIDI_DEVICE_H
 #define MIDI_DEVICE_H
 

@@ -16,6 +16,15 @@
 //You should have received a copy of the GNU General Public License
 //along with avr-midi.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @file
+ * @brief The main midi functions
+ *
+ * This file includes all of the functions you need to set up and process a
+ * midi device, send midi, and register midi callbacks.
+ *
+ */
+
 #ifndef AVR_MIDI_H
 #define AVR_MIDI_H
 

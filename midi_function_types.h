@@ -16,6 +16,11 @@
 //You should have received a copy of the GNU General Public License
 //along with avr-midi.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @file
+ * @brief Function signature definitions
+ */
+
 #ifndef MIDI_FUNCTION_TYPES_H
 #define MIDI_FUNCTION_TYPES_H
 
