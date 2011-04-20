@@ -19,6 +19,25 @@
 #ifndef MIDI_DEVICE_H
 #define MIDI_DEVICE_H
 
+/**
+ * @defgroup midi_device Functions used when implementing your own midi device.
+ *
+ * You use the functions when you are implementing your own midi device.
+ *
+ * You set a send function to actually send bytes via your device, this method
+ * is called when you call a send function with this device, for instance
+ * midi_send_cc
+ *
+ * You use the midi_device_input to process input data from the device and pass
+ * it through the device's associated callbacks.
+ *
+ * You use the midi_device_set_pre_input_process_func if you want to have a
+ * function called at the beginning of the device's process function, generally
+ * to poll for input and pass that into midi_device_input
+ *
+ * @{
+ */
+
 #include "midi_function_types.h"
 #include "bytequeue/bytequeue.h"
 #define MIDI_INPUT_QUEUE_LENGTH 192
@@ -85,7 +104,6 @@ struct _midi_device {
 };
 
 /**
- * @name midi_device_input
  * @brief Process input bytes.  This function parses bytes and calls the
  * appropriate callbacks associated with the given device.  You use this
  * function if you are creating a custom device and you want to have midi
@@ -121,5 +139,7 @@ void midi_device_set_send_func(MidiDevice * device, midi_var_byte_func_t send_fu
  * \param midi_no_byte_func_t the actual callback function
  */
 void midi_device_set_pre_input_process_func(MidiDevice * device, midi_no_byte_func_t pre_process_func);
+
+/**@}*/
 
 #endif
