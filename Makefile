@@ -11,11 +11,11 @@ VERSION = 0.2.develop
 DISTDIR = avr-midi.${VERSION}
 
 #-------------------
-current: examples
+current: implementations
 #-------------------
 
-examples:
-	cd examples && make
+implementations:
+	cd implementations && make
 
 .c.o:
 	@echo CC $<
@@ -23,7 +23,7 @@ examples:
 
 dist: clean
 	mkdir -p ${DISTDIR}
-	cp -R COPYING Makefile *.c *.h README examples/ test/ bytequeue/ ${DISTDIR}
+	cp -R COPYING Makefile *.c *.h README implementations/ test/ bytequeue/ ${DISTDIR}
 	tar -czf ${DISTDIR}.tar.gz ${DISTDIR}
 	rm -rf ${DISTDIR}
 
@@ -33,12 +33,12 @@ post: dist
 
 clean:
 	rm -f *.o *.map *.out *.hex *.tar.gz */*.o
-	cd examples/ && make clean
+	cd implementations/ && make clean
 	cd test/ && make clean
 
 doc:
 	@cd doc && doxygen Doxyfile
 
-.PHONY: examples doc
+.PHONY: implementations doc
 
-all: examples
+all: implementations

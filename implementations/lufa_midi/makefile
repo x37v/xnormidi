@@ -60,7 +60,7 @@
 
 
 # MCU name
-MCU = atmega32u2
+MCU = at90usb646
 
 
 # Target board (see library "Board Types" documentation, NONE for projects not requiring

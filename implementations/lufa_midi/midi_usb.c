@@ -84,7 +84,7 @@ USB_ClassInfo_MIDI_Device_t USB_MIDI_Interface =
 #define SYS_COMMON_2 0x2
 #define SYS_COMMON_3 0x3
 
-void usb_send_func(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
+void usb_send_func(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
    MIDI_EventPacket_t event;
    event.CableNumber = 0;
    event.Data1 = byte0;
