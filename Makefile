@@ -35,10 +35,21 @@ clean:
 	rm -f *.o *.map *.out *.hex *.tar.gz */*.o
 	cd implementations/ && make clean
 	cd test/ && make clean
+	rm -rf tmp
 
 doc:
 	@cd doc && doxygen Doxyfile
 
-.PHONY: implementations doc
+post-doc: doc
+	mkdir tmp/ && cd tmp/ && \
+		git clone git@github.com:x37v/xnormidi.git && \
+		cd xnormidi && git co gh-pages
+	cp -r doc/html/* tmp/xnormidi
+	cd tmp/xnormidi && git add . && \
+		git ci -a -m 'auto updated docs' && \
+		git push origin gh-pages
+	rm -rf tmp
+
+.PHONY: implementations doc post-doc
 
 all: implementations
