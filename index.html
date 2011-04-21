@@ -58,17 +58,11 @@ Example</h2>
 <p>Here is a simple example that uses the lufa usb implementation. We setup the device, register some callbacks, use some send functions and call the process function.</p>
 <div class="fragment"><pre class="fragment"><span class="preprocessor">#include &quot;midi_usb.h&quot;</span> <span class="comment">//see the lufa_midi implementation</span>
 
-<span class="comment">//echo data back</span>
-<span class="keywordtype">void</span> fallthrough_callback(<a class="code" href="struct__midi__device.html" title="This structure represents the input and output functions and processing data for a midi device...">MidiDevice</a> * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
-   <span class="comment">//pass the data back to the device, using the general purpose send data</span>
-   <span class="comment">//function, any bytes after cnt are ignored</span>
-   <a class="code" href="group__send__functions.html#ga36e2f2e45369d911b76969361679054b" title="Send up to 3 bytes of data.">midi_send_data</a>(device, cnt, byte0, byte1, byte2);
-}
-
-<span class="keywordtype">void</span> cc_callback(<a class="code" href="struct__midi__device.html" title="This structure represents the input and output functions and processing data for a midi device...">MidiDevice</a> * device, uint8_t chan, uint8_t num, uint8_t val) {
-   <span class="comment">//sending it back on the next channel</span>
-   <a class="code" href="group__send__functions.html#gaaf884811c92df405ca8fe1a00082f960" title="Send a control change message (cc) via the given device.">midi_send_cc</a>(device, (chan + 1) % 16, num, val);
-}
+<span class="comment">//forward declarations of callbacks</span>
+<span class="keywordtype">void</span> fallthrough_callback(<a class="code" href="struct__midi__device.html" title="This structure represents the input and output functions and processing data for a midi device...">MidiDevice</a> * device,
+      uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
+<span class="keywordtype">void</span> cc_callback(<a class="code" href="struct__midi__device.html" title="This structure represents the input and output functions and processing data for a midi device...">MidiDevice</a> * device,
+      uint8_t chan, uint8_t num, uint8_t val);
 
 <span class="keywordtype">int</span> main(<span class="keywordtype">void</span>) {
    <a class="code" href="struct__midi__device.html" title="This structure represents the input and output functions and processing data for a midi device...">MidiDevice</a> midi_device;
@@ -82,19 +76,33 @@ Example</h2>
 
    <span class="comment">//send some messages</span>
    <a class="code" href="group__send__functions.html#gaaf884811c92df405ca8fe1a00082f960" title="Send a control change message (cc) via the given device.">midi_send_cc</a>(&amp;midi_device, 0, 1, 2);
-
    <a class="code" href="group__send__functions.html#ga467bcf46dbf03ec269ce565b46bc2775" title="Send a note on message via the given device.">midi_send_noteon</a>(&amp;midi_device, 0, 64, 127);
    <a class="code" href="group__send__functions.html#gaedb7d8805425eef5d47d57ddcb4c7a49" title="Send a note off message via the given device.">midi_send_noteoff</a>(&amp;midi_device, 0, 64, 127);
 
    <span class="keywordflow">while</span>(1){
-      <span class="comment">//processes input from the midi device and calls the appropriate callbacks</span>
+      <span class="comment">//processes input from the midi device</span>
+      <span class="comment">//and calls the appropriate callbacks</span>
       <a class="code" href="group__midi__device__setup__process.html#gaa3d5993d0e998a1b59bbf5ab9c7b492b" title="Process input data.">midi_device_process</a>(&amp;midi_device);
    }
 
    <span class="keywordflow">return</span> 0; <span class="comment">//never happens</span>
 }
+
+<span class="comment">//echo data back</span>
+<span class="keywordtype">void</span> fallthrough_callback(<a class="code" href="struct__midi__device.html" title="This structure represents the input and output functions and processing data for a midi device...">MidiDevice</a> * device,
+      uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
+   <span class="comment">//pass the data back to the device, using the general purpose send data</span>
+   <span class="comment">//function, any bytes after cnt are ignored</span>
+   <a class="code" href="group__send__functions.html#ga36e2f2e45369d911b76969361679054b" title="Send up to 3 bytes of data.">midi_send_data</a>(device, cnt, byte0, byte1, byte2);
+}
+
+<span class="keywordtype">void</span> cc_callback(<a class="code" href="struct__midi__device.html" title="This structure represents the input and output functions and processing data for a midi device...">MidiDevice</a> * device,
+      uint8_t chan, uint8_t num, uint8_t val) {
+   <span class="comment">//sending it back on the next channel</span>
+   <a class="code" href="group__send__functions.html#gaaf884811c92df405ca8fe1a00082f960" title="Send a control change message (cc) via the given device.">midi_send_cc</a>(device, (chan + 1) % 16, num, val);
+}
 </pre></div> </div>
-<hr class="footer"/><address class="footer"><small>Generated on Wed Apr 20 2011 13:36:06 for xnor_midi by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Apr 21 2011 11:16:00 for xnor_midi by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>
