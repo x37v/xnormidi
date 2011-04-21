@@ -39,7 +39,7 @@ Here is a simple example that uses the lufa usb implementation.  We setup the
 device, register some callbacks, use some send functions and call the process
 function.
 
-@include example.c
+@include ../implementations/lufa_midi/main.c
 
 
 */
