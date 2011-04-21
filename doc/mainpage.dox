@@ -33,6 +33,12 @@ There are some sysex utilities here:
 <li>\ref sysex_tools</li>
 </ul>
 
+There are some miscellaneous utilities and defines here:
+<ul>
+<li>\ref midi_util</li>
+<li>\ref defines</li>
+</ul>
+
 @section Example
 
 Here is a simple example that uses the lufa usb implementation.  We setup the
