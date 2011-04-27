@@ -270,12 +270,21 @@ USB_Descriptor_String_t PROGMEM ManufacturerString =
  *  and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
+#ifndef USB_MIDI_NAME
 USB_Descriptor_String_t PROGMEM ProductString =
 {
-	.Header                 = {.Size = USB_STRING_LEN(17), .Type = DTYPE_String},
+	.Header                 = {.Size = USB_STRING_LEN(9), .Type = DTYPE_String},
 
-	.UnicodeString          = L"embedded usb midi"
+	.UnicodeString          = L"xnor midi"
 };
+#else
+USB_Descriptor_String_t PROGMEM ProductString =
+{
+	.Header                 = {.Size = USB_STRING_LEN(USB_MIDI_NAME_LEN), .Type = DTYPE_String},
+
+	.UnicodeString          = USB_MIDI_NAME
+};
+#endif
 
 /** This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"
  *  documentation) by the application code so that the address and size of a requested descriptor can be given
