@@ -19,6 +19,10 @@
 #ifndef INTERRUPT_SETTING_H
 #define INTERRUPT_SETTING_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 #include <inttypes.h>
 
 //AVR specific typedef
@@ -26,6 +30,10 @@ typedef uint8_t interrupt_setting_t;
 
 interrupt_setting_t store_and_clear_interrupt(void);
 void restore_interrupt_setting(interrupt_setting_t setting);
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif
 

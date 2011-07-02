@@ -19,6 +19,10 @@
 #ifndef SYSEX_TOOLS_H
 #define SYSEX_TOOLS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 #include <inttypes.h>
 
 /**
@@ -83,5 +87,9 @@ uint16_t sysex_encode(uint8_t *encoded, const uint8_t *source, uint16_t length);
 uint16_t sysex_decode(uint8_t *decoded, const uint8_t *source, uint16_t length);
 
 /**@}*/
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif

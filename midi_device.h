@@ -24,6 +24,10 @@
 #ifndef MIDI_DEVICE_H
 #define MIDI_DEVICE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 /**
  * @defgroup midi_device Functions used when implementing your own midi device.
  *
@@ -146,5 +150,9 @@ void midi_device_set_send_func(MidiDevice * device, midi_var_byte_func_t send_fu
 void midi_device_set_pre_input_process_func(MidiDevice * device, midi_no_byte_func_t pre_process_func);
 
 /**@}*/
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif

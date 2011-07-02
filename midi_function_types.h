@@ -24,6 +24,10 @@
 #ifndef MIDI_FUNCTION_TYPES_H
 #define MIDI_FUNCTION_TYPES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 #include <inttypes.h>
 #include <stdbool.h>
 
@@ -35,5 +39,9 @@ typedef void (* midi_two_byte_func_t)(MidiDevice * device, uint8_t byte0, uint8_
 typedef void (* midi_three_byte_func_t)(MidiDevice * device, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 //all bytes after count bytes should be ignored
 typedef void (* midi_var_byte_func_t)(MidiDevice * device, uint16_t count, uint8_t byte0, uint8_t byte1, uint8_t byte2);
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif

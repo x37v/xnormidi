@@ -25,8 +25,12 @@
  *
  */
 
-#ifndef AVR_MIDI_H
-#define AVR_MIDI_H
+#ifndef XNOR_MIDI_H
+#define XNOR_MIDI_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif 
 
 #include "midi_device.h"
 #include "midi_function_types.h"
@@ -484,6 +488,10 @@ midi_packet_length_t midi_packet_length(uint8_t status);
 #define SYSEX_EDUMANUFID 0x7D
 
 /**@}*/
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif
 
