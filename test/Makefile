@@ -1,28 +1,32 @@
-CFLAGS += -I. -I../ -g -Wall -DDEBUG 
-DUMMY_SRC = dummy_device.c ../midi.c ../midi_device.c ../bytequeue/bytequeue.c ../bytequeue/interrupt_setting.c
-DUMMY_OBJ = ${DUMMY_SRC:.c=.o}
+CFLAGS += -I. -I../ -g -Wall -DDEBUG -lcppunit
 
-SYSEX_SRC = sysex_test.c ../sysex_tools.c
-SYSEX_OBJ = ${SYSEX_SRC:.c=.o}
+DUMMY_SRC = dummy_device.c ../midi.c ../midi_device.c ../bytequeue/bytequeue.c ../bytequeue/interrupt_setting.c
+DUMMY_OBJ = $(DUMMY_SRC:.c=.o)
+
+SYSEX_SRC = ../sysex_tools.c
+SYSEX_OBJ = $(SYSEX_SRC:.c=.o)
+
+TEST_SRC = test_runner.cpp midi_test.cpp sysex_test.cpp
+TEST_OBJ = $(TEST_SRC:.cpp=.o) $(SYSEX_OBJ)
 
 .c.o:
 	@echo CC $<
 	@$(CC) -c $(CFLAGS) -o $*.o $<
 
-dummy_test: clean $(DUMMY_OBJ)
-	@$(CC) -o dummy_test $(DUMMY_OBJ)
+.cpp.o:
+	@echo CXX $<
+	@$(CXX) -c $(CFLAGS) -o $*.o $<
 
-sysex_test: clean $(SYSEX_OBJ)
-	@$(CC) -o sysex_test $(SYSEX_OBJ)
+test: $(TEST_OBJ)
+	@$(CXX) -o test $(CFLAGS) $(LDFLAGS) $(TEST_OBJ)
 
-run_tests: sysex_test dummy_test
-	./dummy_test
-	./sysex_test
+run_tests: test
+	./test
 
 all: run_tests
 
 #-------------------
 clean:
-	rm -f *.o *.map *.out *.hex *.tar.gz ../*.o ../bytequeue/*.o dummy_test sysex_test
+	rm -f *.o *.map *.out *.hex *.tar.gz ../*.o ../bytequeue/*.o test
 #-------------------
 
