@@ -23,10 +23,6 @@
 #define NULL 0
 #endif
 
-#ifdef DEBUG
-#include <stdio.h>
-#endif
-
 //forward declarations, internally used to call the callbacks
 void midi_input_callbacks(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 void midi_process_byte(MidiDevice * device, uint8_t input);
@@ -62,24 +58,10 @@ void midi_device_init(MidiDevice * device){
    device->pre_input_process_callback = NULL;
 }
 
-void midi_device_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
-   //temp storage so we can loop over the bytes
-   uint8_t input[3];
-   input[0] = byte0;
-   input[1] = byte1;
-   input[2] = byte2;
-
-   //clamp range
-   if (cnt > 3)
-      cnt = 3;
-
+void midi_device_input(MidiDevice * device, uint8_t cnt, uint8_t * input) {
    uint8_t i;
-   for (i = 0; i < cnt; i++) {
-#ifdef DEBUG
-      printf("queueing %x\n", input[i]);
-#endif
+   for (i = 0; i < cnt; i++)
       bytequeue_enqueue(&device->input_queue, input[i]);
-   }
 }
 
 void midi_device_set_send_func(MidiDevice * device, midi_var_byte_func_t send_func){
@@ -101,9 +83,6 @@ void midi_device_process(MidiDevice * device) {
    //TODO limit number of bytes processed?
    for(i = 0; i < len; i++) {
       uint8_t val = bytequeue_get(&device->input_queue, 0);
-#ifdef DEBUG
-      printf("processing %x\n", val);
-#endif
       midi_process_byte(device, val);
       bytequeue_remove(&device->input_queue, 1);
    }
@@ -193,9 +172,6 @@ void midi_process_byte(MidiDevice * device, uint8_t input) {
 }
 
 void midi_input_callbacks(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
-#ifdef DEBUG
-   printf("callback func %d %x %x %x\n", cnt, byte0, byte1, byte2);
-#endif
    //did we end up calling a callback?
    bool called = false;
    if (device->input_state == SYSEX_MESSAGE) {

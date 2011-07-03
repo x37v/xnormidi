@@ -120,11 +120,9 @@ struct _midi_device {
  *
  * @param device the midi device to associate the input with
  * @param cnt the number of bytes you are processing
- * @param byte0 the first byte to process
- * @param byte1 the second byte to process, ignored if cnt != 2
- * @param byte2 the third byte to process , ignored if cnt != 3
+ * @param input the bytes to process
  */
-void midi_device_input(MidiDevice * device, uint8_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
+void midi_device_input(MidiDevice * device, uint8_t cnt, uint8_t * input);
 
 /**
  * @brief Set the callback function that will be used for sending output
