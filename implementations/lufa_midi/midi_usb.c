@@ -149,8 +149,13 @@ void usb_get_midi(MidiDevice * device) {
 
       //pass the data to the device input function
       //not dealing with sysex yet
-      if (length != UNDEFINED)
-         midi_device_input(device, length, event.Data1, event.Data2, event.Data3);
+      if (length != UNDEFINED) {
+         uint8_t input[3];
+         input[0] = event.Data1;
+         input[1] = event.Data2;
+         input[2] = event.Data3;
+         midi_device_input(device, length, input);
+      }
 
    }
    MIDI_Device_USBTask(&USB_MIDI_Interface);
