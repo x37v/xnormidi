@@ -38,24 +38,32 @@ midi_packet_length_t midi_packet_length(uint8_t status){
       case MIDI_NOTEOFF:
       case MIDI_AFTERTOUCH:
       case MIDI_PITCHBEND:
-      case MIDI_SONGPOSITION:
          return THREE;
       case MIDI_PROGCHANGE:
       case MIDI_CHANPRESSURE:
       case MIDI_SONGSELECT:
-      case MIDI_TC_QUATERFRAME:
          return TWO;
-      case MIDI_CLOCK:
-      case MIDI_TICK:
-      case MIDI_START:
-      case MIDI_CONTINUE:
-      case MIDI_STOP:
-      case MIDI_ACTIVESENSE:
-      case MIDI_RESET:
-      case MIDI_TUNEREQUEST:
-         return ONE;
-      case SYSEX_END:
-      case SYSEX_BEGIN:
+      case 0xF0:
+         switch(status) {
+            case MIDI_CLOCK:
+            case MIDI_TICK:
+            case MIDI_START:
+            case MIDI_CONTINUE:
+            case MIDI_STOP:
+            case MIDI_ACTIVESENSE:
+            case MIDI_RESET:
+            case MIDI_TUNEREQUEST:
+               return ONE;
+            case MIDI_SONGPOSITION:
+               return THREE;
+            case MIDI_TC_QUATERFRAME:
+            case MIDI_SONGSELECT:
+               return TWO;
+            case SYSEX_END:
+            case SYSEX_BEGIN:
+            default:
+               return UNDEFINED;
+         }
       default:
          return UNDEFINED;
    }

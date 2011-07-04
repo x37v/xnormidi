@@ -200,8 +200,9 @@ void midi_input_callbacks(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint
                   case MIDI_PITCHBEND:
                      func = device->input_pitchbend_callback;
                      break;
-                  case MIDI_SONGPOSITION:
-                     func = device->input_songposition_callback;
+                  case 0xF0:
+                     if (byte0 == MIDI_SONGPOSITION)
+                        func = device->input_songposition_callback;
                      break;
                   default:
                      break;
@@ -222,11 +223,11 @@ void midi_input_callbacks(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint
                   case MIDI_CHANPRESSURE:
                      func = device->input_chanpressure_callback;
                      break;
-                  case MIDI_SONGSELECT:
-                     func = device->input_songselect_callback;
-                     break;
-                  case MIDI_TC_QUATERFRAME:
-                     func = device->input_tc_quaterframe_callback;
+                  case 0xF0:
+                     if (byte0 == MIDI_SONGSELECT)
+                        func = device->input_songselect_callback;
+                     else if (byte0 == MIDI_TC_QUATERFRAME)
+                        func = device->input_tc_quaterframe_callback;
                      break;
                   default:
                      break;
