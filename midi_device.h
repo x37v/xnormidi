@@ -86,7 +86,7 @@ struct _midi_device {
    midi_two_byte_func_t input_progchange_callback;
    midi_two_byte_func_t input_chanpressure_callback;
    midi_two_byte_func_t input_songselect_callback;
-   midi_two_byte_func_t input_tc_quaterframe_callback;
+   midi_two_byte_func_t input_tc_quarterframe_callback;
    //one byte funcs
    midi_one_byte_func_t input_realtime_callback;
    midi_one_byte_func_t input_tunerequest_callback;

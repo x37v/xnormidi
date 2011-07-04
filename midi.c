@@ -56,7 +56,7 @@ midi_packet_length_t midi_packet_length(uint8_t status){
                return ONE;
             case MIDI_SONGPOSITION:
                return THREE;
-            case MIDI_TC_QUATERFRAME:
+            case MIDI_TC_QUARTERFRAME:
             case MIDI_SONGSELECT:
                return TWO;
             case SYSEX_END:
@@ -163,9 +163,9 @@ void midi_send_reset(MidiDevice * device){
    device->send_func(device, 1, MIDI_RESET, 0, 0);
 }
 
-void midi_send_tcquaterframe(MidiDevice * device, uint8_t time){
+void midi_send_tcquarterframe(MidiDevice * device, uint8_t time){
    device->send_func(device, 2,
-         MIDI_TC_QUATERFRAME,
+         MIDI_TC_QUARTERFRAME,
          time & 0x7F,
          0);
 }
@@ -239,7 +239,7 @@ void midi_register_songselect_callback(MidiDevice * device, midi_two_byte_func_t
 }
 
 void midi_register_tc_quarterframe_callback(MidiDevice * device, midi_two_byte_func_t func) {
-   device->input_tc_quaterframe_callback = func;
+   device->input_tc_quarterframe_callback = func;
 }
 
 void midi_register_realtime_callback(MidiDevice * device, midi_one_byte_func_t func){

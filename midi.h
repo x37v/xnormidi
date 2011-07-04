@@ -192,7 +192,7 @@ void midi_send_reset(MidiDevice * device);
  * @param device the device to use for sending
  * @param time the time of this quarter frame, range 0..16383
  */
-void midi_send_tcquaterframe(MidiDevice * device, uint8_t time);
+void midi_send_tcquarterframe(MidiDevice * device, uint8_t time);
 
 /**
  * @brief Send a song position message via the given device.
@@ -479,7 +479,7 @@ midi_packet_length_t midi_packet_length(uint8_t status);
 #define MIDI_ACTIVESENSE 0xFE
 #define MIDI_RESET 0xFF
 
-#define MIDI_TC_QUATERFRAME 0xF1
+#define MIDI_TC_QUARTERFRAME 0xF1
 #define MIDI_SONGPOSITION 0xF2
 #define MIDI_SONGSELECT 0xF3
 #define MIDI_TUNEREQUEST 0xF6

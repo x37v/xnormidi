@@ -44,7 +44,7 @@ void midi_device_init(MidiDevice * device){
    device->input_progchange_callback = NULL;
    device->input_chanpressure_callback = NULL;
    device->input_songselect_callback = NULL;
-   device->input_tc_quaterframe_callback = NULL;
+   device->input_tc_quarterframe_callback = NULL;
 
    //one byte funcs
    device->input_realtime_callback = NULL;
@@ -226,8 +226,8 @@ void midi_input_callbacks(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint
                   case 0xF0:
                      if (byte0 == MIDI_SONGSELECT)
                         func = device->input_songselect_callback;
-                     else if (byte0 == MIDI_TC_QUATERFRAME)
-                        func = device->input_tc_quaterframe_callback;
+                     else if (byte0 == MIDI_TC_QUARTERFRAME)
+                        func = device->input_tc_quarterframe_callback;
                      break;
                   default:
                      break;
