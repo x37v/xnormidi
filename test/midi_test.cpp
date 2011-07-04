@@ -230,7 +230,7 @@ void MIDITest::packetLengthTest() {
       CPPUNIT_ASSERT_EQUAL(UNDEFINED, midi_packet_length(i));
 }
 
-#define SIZE 1024
+#define BUFFER_SIZE 1024
 void MIDITest::threeByteCallbacks() {
    typedef void (*three_byte_callback_reg_t)(MidiDevice * device, midi_three_byte_func_t func);
 
@@ -278,7 +278,7 @@ void MIDITest::threeByteCallbacks() {
       MidiDevice device;
       midi_device_init(&device);
 
-      uint8_t buffer[SIZE];
+      uint8_t buffer[BUFFER_SIZE];
       buffer[0] = status;
       buffer[1] = 0x01;
       buffer[2] = 0x20;
@@ -328,7 +328,29 @@ void MIDITest::threeByteCallbacks() {
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, buffer[i * 3 + j], callback_data[i].bytes[j]);
       }
 
+      //test running status
+      callback_data.clear();
+      buffer[0] = status;
+      midi_device_input(&device, 1, buffer);
+      for (unsigned int i = 0; i < 16; i++) {
+         buffer[i * 2] = rand() % 0x7f;
+         buffer[1 + i * 2] = rand() % 0x7f;
+         midi_device_input(&device, 2, buffer + i * 2);
+      }
+      midi_device_process(&device);
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 16, (int)callback_data.size());
+
+      for (unsigned int i = 0; i < 16; i++) {
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, cb_names[cb_type], callback_data[i].type);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, status, callback_data[i].bytes[0]);
+         for (unsigned int j = 0; j < 2; j++)
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, buffer[i * 2 + j], callback_data[i].bytes[j + 1]);
+      }
+
       //register catchall
+      buffer[0] = status;
+      buffer[1] = 0x01;
+      buffer[2] = 0x20;
       callback_data.clear();
       midi_register_catchall_callback(&device, catchall_callback);
       midi_device_input(&device, 3, buffer);
@@ -380,7 +402,7 @@ void MIDITest::twoByteCallbacks() {
       MidiDevice device;
       midi_device_init(&device);
 
-      uint8_t buffer[SIZE];
+      uint8_t buffer[BUFFER_SIZE];
       buffer[0] = status;
       buffer[1] = 0x01;
 
@@ -428,7 +450,26 @@ void MIDITest::twoByteCallbacks() {
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, buffer[i * 2 + j], callback_data[i].bytes[j]);
       }
 
+      //test running status
+      callback_data.clear();
+      buffer[0] = status;
+      midi_device_input(&device, 1, buffer);
+      for (unsigned int i = 0; i < 16; i++) {
+         buffer[i] = rand() % 0x7f;
+         midi_device_input(&device, 1, buffer + i);
+      }
+      midi_device_process(&device);
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 16, (int)callback_data.size());
+
+      for (unsigned int i = 0; i < 16; i++) {
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, cb_names[cb_type], callback_data[i].type);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, status, callback_data[i].bytes[0]);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, buffer[i], callback_data[i].bytes[1]);
+      }
+
       //register catchall
+      buffer[0] = status;
+      buffer[1] = 0x01;
       callback_data.clear();
       midi_register_catchall_callback(&device, catchall_callback);
       midi_device_input(&device, 2, buffer);
@@ -459,7 +500,7 @@ void MIDITest::oneByteCallbacks() {
       MidiDevice device;
       midi_device_init(&device);
 
-      uint8_t buffer[SIZE];
+      uint8_t buffer[BUFFER_SIZE];
       buffer[0] = status;
 
       CPPUNIT_ASSERT_EQUAL(0, (int)callback_data.size());
@@ -504,7 +545,7 @@ void MIDITest::oneByteCallbacks() {
       MidiDevice device;
       midi_device_init(&device);
 
-      uint8_t buffer[SIZE];
+      uint8_t buffer[BUFFER_SIZE];
       buffer[0] = status;
 
       CPPUNIT_ASSERT_EQUAL(0, (int)callback_data.size());

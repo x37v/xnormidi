@@ -152,14 +152,19 @@ void midi_process_byte(MidiDevice * device, uint8_t input) {
                //call callback
                midi_input_callbacks(device, 3,
                      device->input_buffer[0], device->input_buffer[1], device->input_buffer[2]);
-               if (device->input_state != SYSEX_MESSAGE)
-                  device->input_state = IDLE;
+               if (device->input_state != SYSEX_MESSAGE) {
+                  //set to 1, keeping status byte, allowing for running status
+                  device->input_count = 1;
+               }
                break;
             case 2:
                if (device->input_state == TWO_BYTE_MESSAGE) {
                   //call callback
                   midi_input_callbacks(device, 2, device->input_buffer[0], device->input_buffer[1], 0);
-                  device->input_state = IDLE;
+                  if (device->input_state != SYSEX_MESSAGE) {
+                     //set to 1, keeping status byte, allowing for running status
+                     device->input_count = 1;
+                  }
                }
                break;
             case 1:
