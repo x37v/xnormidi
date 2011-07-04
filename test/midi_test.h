@@ -10,14 +10,19 @@ class MIDITest : public CppUnit::TestCase {
    CPPUNIT_TEST( realtimeTest );
    CPPUNIT_TEST( packetLengthTest );
    CPPUNIT_TEST( threeByteCallbacks );
+   CPPUNIT_TEST( twoByteCallbacks );
+   CPPUNIT_TEST( oneByteCallbacks );
    CPPUNIT_TEST_SUITE_END(); 
 
    public:
+      virtual void setUp();
+
       void statusByteTest();
       void realtimeTest();
       void packetLengthTest();
       void threeByteCallbacks();
-      virtual void setUp();
+      void twoByteCallbacks();
+      void oneByteCallbacks();
 };
 
 #endif
