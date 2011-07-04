@@ -12,6 +12,7 @@ class MIDITest : public CppUnit::TestCase {
    CPPUNIT_TEST( threeByteCallbacks );
    CPPUNIT_TEST( twoByteCallbacks );
    CPPUNIT_TEST( oneByteCallbacks );
+   CPPUNIT_TEST( interspersedRealtime );
    CPPUNIT_TEST_SUITE_END(); 
 
    public:
@@ -23,6 +24,7 @@ class MIDITest : public CppUnit::TestCase {
       void threeByteCallbacks();
       void twoByteCallbacks();
       void oneByteCallbacks();
+      void interspersedRealtime();
 };
 
 #endif

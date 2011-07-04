@@ -74,6 +74,29 @@ extern "C" void sysex_callback(MidiDevice * device, uint16_t cnt, uint8_t byte0,
    callback_data.push_back(CallbackInfo("sysex", byte0, byte1, byte2));
 }
 
+
+void register_all_callbacks(MidiDevice * device, bool include_catchall = false) {
+   midi_register_cc_callback(device, cc_callback);
+   midi_register_noteon_callback(device, noteon_callback);
+   midi_register_noteoff_callback(device, noteoff_callback);
+   midi_register_aftertouch_callback(device, aftertouch_callback);
+   midi_register_pitchbend_callback(device, pitchbend_callback);
+   midi_register_songposition_callback(device, songposition_callback);
+
+   midi_register_progchange_callback(device, progchange_callback);
+   midi_register_chanpressure_callback(device, chanpressure_callback);
+   midi_register_songselect_callback(device, songselect_callback);
+   midi_register_tc_quarterframe_callback(device, tc_quarterframe_callback);
+
+   midi_register_realtime_callback(device, realtime_callback);
+   midi_register_tunerequest_callback(device, tunerequest_callback);
+
+   midi_register_fallthrough_callback(device, fallthrough_callback);
+   if(include_catchall)
+      midi_register_catchall_callback(device, catchall_callback);
+   midi_register_sysex_callback(device, sysex_callback);
+}
+
 void MIDITest::setUp() {
    callback_data.clear();
 }
@@ -581,4 +604,66 @@ void MIDITest::oneByteCallbacks() {
       CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, std::string("catchall"), callback_data[3].type);
       CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, buffer[0], callback_data.back().bytes[0]);
    }
+}
+
+void MIDITest::interspersedRealtime() {
+   //test a bunch of messages with realtime interspersed
+   uint8_t buffer[] = {
+      MIDI_TICK,
+      MIDI_CC, 0x1, 0x2,
+      MIDI_NOTEON, 0x2, MIDI_CLOCK, 0x3,
+      MIDI_STOP,
+      MIDI_NOTEOFF, MIDI_START, 0x4, 0x6,
+      MIDI_AFTERTOUCH, MIDI_CONTINUE, 0x7, 0x8,
+      MIDI_RESET, MIDI_ACTIVESENSE
+   };
+
+   MidiDevice device;
+   midi_device_init(&device);
+   register_all_callbacks(&device);
+   midi_device_input(&device, sizeof(buffer), buffer);
+
+   midi_device_process(&device);
+   CPPUNIT_ASSERT_EQUAL(11, (int)callback_data.size());
+
+   CPPUNIT_ASSERT_EQUAL(std::string("realtime"), callback_data[0].type);
+   CPPUNIT_ASSERT_EQUAL(MIDI_TICK, (int)callback_data[0].bytes[0]);
+
+   CPPUNIT_ASSERT_EQUAL(std::string("cc"), callback_data[1].type);
+   CPPUNIT_ASSERT_EQUAL(MIDI_CC, (int)callback_data[1].bytes[0]);
+   CPPUNIT_ASSERT_EQUAL(0x1, (int)callback_data[1].bytes[1]);
+   CPPUNIT_ASSERT_EQUAL(0x2, (int)callback_data[1].bytes[2]);
+
+   CPPUNIT_ASSERT_EQUAL(std::string("realtime"), callback_data[2].type);
+   CPPUNIT_ASSERT_EQUAL(MIDI_CLOCK, (int)callback_data[2].bytes[0]);
+
+   CPPUNIT_ASSERT_EQUAL(std::string("noteon"), callback_data[3].type);
+   CPPUNIT_ASSERT_EQUAL(MIDI_NOTEON, (int)callback_data[3].bytes[0]);
+   CPPUNIT_ASSERT_EQUAL(0x2, (int)callback_data[3].bytes[1]);
+   CPPUNIT_ASSERT_EQUAL(0x3, (int)callback_data[3].bytes[2]);
+
+   CPPUNIT_ASSERT_EQUAL(std::string("realtime"), callback_data[4].type);
+   CPPUNIT_ASSERT_EQUAL(MIDI_STOP, (int)callback_data[4].bytes[0]);
+
+   CPPUNIT_ASSERT_EQUAL(std::string("realtime"), callback_data[5].type);
+   CPPUNIT_ASSERT_EQUAL(MIDI_START, (int)callback_data[5].bytes[0]);
+
+   CPPUNIT_ASSERT_EQUAL(std::string("noteoff"), callback_data[6].type);
+   CPPUNIT_ASSERT_EQUAL(MIDI_NOTEOFF, (int)callback_data[6].bytes[0]);
+   CPPUNIT_ASSERT_EQUAL(0x4, (int)callback_data[6].bytes[1]);
+   CPPUNIT_ASSERT_EQUAL(0x6, (int)callback_data[6].bytes[2]);
+
+   CPPUNIT_ASSERT_EQUAL(std::string("realtime"), callback_data[7].type);
+   CPPUNIT_ASSERT_EQUAL(MIDI_CONTINUE, (int)callback_data[7].bytes[0]);
+
+   CPPUNIT_ASSERT_EQUAL(std::string("aftertouch"), callback_data[8].type);
+   CPPUNIT_ASSERT_EQUAL(MIDI_AFTERTOUCH, (int)callback_data[8].bytes[0]);
+   CPPUNIT_ASSERT_EQUAL(0x7, (int)callback_data[8].bytes[1]);
+   CPPUNIT_ASSERT_EQUAL(0x8, (int)callback_data[8].bytes[2]);
+
+   CPPUNIT_ASSERT_EQUAL(std::string("realtime"), callback_data[9].type);
+   CPPUNIT_ASSERT_EQUAL(MIDI_RESET, (int)callback_data[9].bytes[0]);
+
+   CPPUNIT_ASSERT_EQUAL(std::string("realtime"), callback_data[10].type);
+   CPPUNIT_ASSERT_EQUAL(MIDI_ACTIVESENSE, (int)callback_data[10].bytes[0]);
 }
