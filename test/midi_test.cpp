@@ -312,10 +312,10 @@ void MIDITest::threeByteCallbacks() {
       //multiple messages between processing
       callback_data.clear();
       for (unsigned int i = 0; i < 16; i++) {
-         if(status < 0xF0) {
-            buffer[0 + i * 3] = status | i;
-         } else
+         if(status & 0x0F) {
             buffer[0 + i * 3] = status;
+         } else
+            buffer[0 + i * 3] = status | i;
          buffer[1 + i * 3] = rand() % 0x7f;
          buffer[2 + i * 3] = rand() % 0x7f;
          midi_device_input(&device, 3, buffer + i * 3);
@@ -328,8 +328,8 @@ void MIDITest::threeByteCallbacks() {
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, buffer[i * 3 + j], callback_data[i].bytes[j]);
       }
 
-      callback_data.clear();
       //register catchall
+      callback_data.clear();
       midi_register_catchall_callback(&device, catchall_callback);
       midi_device_input(&device, 3, buffer);
       midi_device_process(&device);
@@ -342,7 +342,6 @@ void MIDITest::threeByteCallbacks() {
 }
 
 void MIDITest::twoByteCallbacks() {
-
    typedef void (*two_byte_callback_reg_t)(MidiDevice * device, midi_two_byte_func_t func);
 
    const two_byte_callback_reg_t registrations[] = {
@@ -414,10 +413,10 @@ void MIDITest::twoByteCallbacks() {
       //multiple messages between processing
       callback_data.clear();
       for (unsigned int i = 0; i < 16; i++) {
-         if(status < 0xF0) {
-            buffer[0 + i * 2] = status | i;
-         } else
+         if(status & 0x0F) {
             buffer[0 + i * 2] = status;
+         } else
+            buffer[0 + i * 2] = status | i;
          buffer[1 + i * 2] = rand() % 0x7f;
          midi_device_input(&device, 2, buffer + i * 2);
       }
