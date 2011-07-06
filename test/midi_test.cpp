@@ -2,6 +2,7 @@
 #include <vector>
 #include <streambuf>
 #include <stdlib.h>
+#include <cmath>
 
 #include "midi.h"
 
@@ -11,14 +12,16 @@ CPPUNIT_TEST_SUITE_REGISTRATION( MIDITest );
 
 class CallbackInfo {
    public:
-      CallbackInfo(std::string t, uint8_t byte0 = 0, uint8_t byte1 = 0, uint8_t byte2 = 0) :
+      CallbackInfo(std::string t, uint8_t byte0 = 0, uint8_t byte1 = 0, uint8_t byte2 = 0, uint16_t cnt = 0) :
          type(t) {
             bytes[0] = byte0;
             bytes[1] = byte1;
             bytes[2] = byte2;
+            count = cnt;
          }
       std::string type;
       uint8_t bytes[3];
+      uint16_t count;
 };
 
 static vector<CallbackInfo> callback_data;
@@ -71,7 +74,7 @@ extern "C" void catchall_callback(MidiDevice * device, uint16_t cnt, uint8_t byt
 }
 
 extern "C" void sysex_callback(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
-   callback_data.push_back(CallbackInfo("sysex", byte0, byte1, byte2));
+   callback_data.push_back(CallbackInfo("sysex", byte0, byte1, byte2, cnt));
 }
 
 
@@ -606,6 +609,40 @@ void MIDITest::oneByteCallbacks() {
    }
 }
 
+void MIDITest::sysexCallback() {
+   MidiDevice device;
+   midi_device_init(&device);
+   register_all_callbacks(&device);
+
+   //the internal buffer is 192 bytes long.. that should probably be configurable..
+   for(unsigned int len = 0; len < 185; len++) {
+      std::stringstream msg;
+      callback_data.clear();
+
+      uint8_t buffer[BUFFER_SIZE];
+      buffer[0] = SYSEX_BEGIN;
+      for (unsigned int i = 0; i < len; i++)
+         buffer[i + 1] = i % 0x7F;
+      buffer[len + 1] = SYSEX_END;
+
+      midi_device_input(&device, 2 + len, buffer);
+      midi_device_process(&device);
+      unsigned int num = (unsigned int)ceil(((float)len + 2.0) / 3.0);
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.str(), num, (unsigned int)callback_data.size());
+
+      for (unsigned int i = 0; i < num; i++) {
+         unsigned int cnt = i * 3 + 3;
+         if (cnt >= len + 2)
+            cnt = len + 2;
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.str(), std::string("sysex"), callback_data[i].type);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.str(), cnt, (unsigned int)callback_data[i].count);
+      }
+
+      for (unsigned int i = 0; i < len + 2; i++)
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.str(), (unsigned int)buffer[i], (unsigned int)callback_data[i / 3].bytes[i % 3]);
+   }
+}
+
 void MIDITest::interspersedRealtime() {
    //test a bunch of messages with realtime interspersed
    uint8_t buffer[] = {
@@ -667,3 +704,5 @@ void MIDITest::interspersedRealtime() {
    CPPUNIT_ASSERT_EQUAL(std::string("realtime"), callback_data[10].type);
    CPPUNIT_ASSERT_EQUAL(MIDI_ACTIVESENSE, (int)callback_data[10].bytes[0]);
 }
+
+
