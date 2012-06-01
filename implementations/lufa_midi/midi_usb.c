@@ -123,7 +123,7 @@ void usb_send_func(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byt
             event.Command = SYS_COMMON_3;
             break;
          case MIDI_SONGSELECT:
-         case MIDI_TC_QUATERFRAME:
+         case MIDI_TC_QUARTERFRAME:
             event.Command = SYS_COMMON_2;
             break;
          default:
