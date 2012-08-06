@@ -206,9 +206,10 @@ void midi_send_data(MidiDevice * device, uint16_t count, uint8_t byte0, uint8_t 
 void midi_send_array(MidiDevice * device, uint16_t count, uint8_t * array) {
   for (uint16_t i = 0; i < count; i += 3) {
     uint8_t b[3] = { 0, 0, 0 };
-    uint16_t remaining = count - i;
-    memcpy(b, array + i, (remaining > 3) ? 3 : remaining);
-    midi_send_data(device, i, b[0], b[1], b[2]);
+    uint16_t to_send = count - i;
+    to_send = (to_send > 3) ? 3 : to_send
+    memcpy(b, array + i, to_send);
+    midi_send_data(device, to_send, b[0], b[1], b[2]);
   }
 }
 
