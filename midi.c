@@ -17,6 +17,8 @@
 //along with avr-midi.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "midi.h"
+#include <string.h> //for memcpy
+
 #define MIN(x,y) (((x) < (y)) ? (x) : (y)) 
 
 #ifndef NULL
@@ -199,6 +201,17 @@ void midi_send_data(MidiDevice * device, uint16_t count, uint8_t byte0, uint8_t 
       //TODO how to do this correctly?
    }
    device->send_func(device, count, byte0, byte1, byte2);
+}
+
+void midi_send_array(MidiDevice * device, uint16_t count, uint8_t * array) {
+  uint16_t i;
+  for (i = 0; i < count; i += 3) {
+    uint8_t b[3] = { 0, 0, 0 };
+    uint16_t to_send = count - i;
+    to_send = (to_send > 3) ? 3 : to_send;
+    memcpy(b, array + i, to_send);
+    midi_send_data(device, to_send, b[0], b[1], b[2]);
+  }
 }
 
 

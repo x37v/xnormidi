@@ -243,6 +243,17 @@ void midi_send_byte(MidiDevice * device, uint8_t b);
  */
 void midi_send_data(MidiDevice * device, uint16_t count, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 
+/**
+ * @brief Send an array of formatted midi data.
+ *
+ * Can be used for sysex.
+ *
+ * @param device the device to use for sending
+ * @param count the count of bytes to send
+ * @param array the array of bytes
+ */
+void midi_send_array(MidiDevice * device, uint16_t count, uint8_t * array);
+
 /**@}*/
 
 
