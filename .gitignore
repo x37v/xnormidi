@@ -5,5 +5,10 @@
 *.swp
 *.gz
 *.lst
+*.d
+*.elf
+*.sym
+*.lss
+*.eep
 doc/latex/
 doc/html/

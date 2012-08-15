@@ -1,13 +1,13 @@
 /*
              LUFA Library
-     Copyright (C) Dean Camera, 2010.
+     Copyright (C) Dean Camera, 2012.
 
   dean [at] fourwalledcubicle [dot] com
            www.lufa-lib.org
 */
 
 /*
-  Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
+  Copyright 2012  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
@@ -42,7 +42,7 @@
  *  number of device configurations. The descriptor is read out by the USB host when the enumeration
  *  process begins.
  */
-USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
+const USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 {
 	.Header                 = {.Size = sizeof(USB_Descriptor_Device_t), .Type = DTYPE_Device},
 
@@ -69,7 +69,7 @@ USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
  *  and endpoints. The descriptor is read out by the USB host during the enumeration process when selecting
  *  a configuration so that the host may correctly communicate with the USB device.
  */
-USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
+const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 {
 	.Config =
 		{
@@ -81,7 +81,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.ConfigurationNumber      = 1,
 			.ConfigurationStrIndex    = NO_DESCRIPTOR,
 
-			.ConfigAttributes         = (USB_CONFIG_ATTR_BUSPOWERED | USB_CONFIG_ATTR_SELFPOWERED),
+			.ConfigAttributes         = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_SELFPOWERED),
 
 			.MaxPowerConsumption      = USB_CONFIG_POWER_MA(100)
 		},
@@ -199,10 +199,10 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 				{
 					.Header              = {.Size = sizeof(USB_Audio_Descriptor_StreamEndpoint_Std_t), .Type = DTYPE_Endpoint},
 
-					.EndpointAddress     = (ENDPOINT_DESCRIPTOR_DIR_OUT | MIDI_STREAM_OUT_EPNUM),
+					.EndpointAddress     = MIDI_STREAM_OUT_EPADDR,
 					.Attributes          = (EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
 					.EndpointSize        = MIDI_STREAM_EPSIZE,
-					.PollingIntervalMS   = 0
+					.PollingIntervalMS   = 0x05
 				},
 
 			.Refresh                  = 0,
@@ -224,10 +224,10 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 				{
 					.Header              = {.Size = sizeof(USB_Audio_Descriptor_StreamEndpoint_Std_t), .Type = DTYPE_Endpoint},
 
-					.EndpointAddress     = (ENDPOINT_DESCRIPTOR_DIR_IN | MIDI_STREAM_IN_EPNUM),
+					.EndpointAddress     = MIDI_STREAM_IN_EPADDR,
 					.Attributes          = (EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
 					.EndpointSize        = MIDI_STREAM_EPSIZE,
-					.PollingIntervalMS   = 0
+					.PollingIntervalMS   = 0x05
 				},
 
 			.Refresh                  = 0,
@@ -248,7 +248,7 @@ USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
  *  the string descriptor with index 0 (the first index). It is actually an array of 16-bit integers, which indicate
  *  via the language ID table available at USB.org what languages the device supports for its string descriptors.
  */
-USB_Descriptor_String_t PROGMEM LanguageString =
+const USB_Descriptor_String_t PROGMEM LanguageString =
 {
 	.Header                 = {.Size = USB_STRING_LEN(1), .Type = DTYPE_String},
 
@@ -259,7 +259,7 @@ USB_Descriptor_String_t PROGMEM LanguageString =
  *  form, and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
-USB_Descriptor_String_t PROGMEM ManufacturerString =
+const USB_Descriptor_String_t PROGMEM ManufacturerString =
 {
 	.Header                 = {.Size = USB_STRING_LEN(11), .Type = DTYPE_String},
 
@@ -270,21 +270,12 @@ USB_Descriptor_String_t PROGMEM ManufacturerString =
  *  and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
-#ifndef USB_MIDI_NAME
-USB_Descriptor_String_t PROGMEM ProductString =
+const USB_Descriptor_String_t PROGMEM ProductString =
 {
-	.Header                 = {.Size = USB_STRING_LEN(9), .Type = DTYPE_String},
+	.Header                 = {.Size = USB_STRING_LEN(14), .Type = DTYPE_String},
 
-	.UnicodeString          = L"xnor midi"
+	.UnicodeString          = L"LUFA MIDI Demo"
 };
-#else
-USB_Descriptor_String_t PROGMEM ProductString =
-{
-	.Header                 = {.Size = USB_STRING_LEN(USB_MIDI_NAME_LEN), .Type = DTYPE_String},
-
-	.UnicodeString          = USB_MIDI_NAME
-};
-#endif
 
 /** This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"
  *  documentation) by the application code so that the address and size of a requested descriptor can be given

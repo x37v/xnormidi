@@ -64,16 +64,20 @@ USB_ClassInfo_MIDI_Device_t USB_MIDI_Interface =
    .Config =
    {
       .StreamingInterfaceNumber = 1,
-
-      .DataINEndpointNumber      = MIDI_STREAM_IN_EPNUM,
-      .DataINEndpointSize        = MIDI_STREAM_EPSIZE,
-      .DataINEndpointDoubleBank  = false,
-
-      .DataOUTEndpointNumber     = MIDI_STREAM_OUT_EPNUM,
-      .DataOUTEndpointSize       = MIDI_STREAM_EPSIZE,
-      .DataOUTEndpointDoubleBank = false,
+      .DataINEndpoint           =
+      {
+         .Address          = MIDI_STREAM_IN_EPADDR,
+         .Size             = MIDI_STREAM_EPSIZE,
+         .Banks            = 1,
+      },
+      .DataOUTEndpoint          =
+      {
+         .Address          = MIDI_STREAM_OUT_EPADDR,
+         .Size             = MIDI_STREAM_EPSIZE,
+         .Banks            = 1,
+      },
    },
-	};
+};
 
 #define SYSEX_START_OR_CONT 0x4
 #define SYSEX_ENDS_IN_1 0x5
@@ -86,7 +90,6 @@ USB_ClassInfo_MIDI_Device_t USB_MIDI_Interface =
 
 void usb_send_func(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
    MIDI_EventPacket_t event;
-   event.CableNumber = 0;
    event.Data1 = byte0;
    event.Data2 = byte1;
    event.Data3 = byte2;
@@ -96,21 +99,21 @@ void usb_send_func(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byt
       switch(cnt) {
          case 3:
             if (byte2 == SYSEX_END)
-               event.Command = SYSEX_ENDS_IN_3;
+               event.Event = MIDI_EVENT(0, SYSEX_ENDS_IN_3);
             else
-               event.Command = SYSEX_START_OR_CONT;
+               event.Event = MIDI_EVENT(0, SYSEX_START_OR_CONT);
             break;
          case 2:
             if (byte1 == SYSEX_END)
-               event.Command = SYSEX_ENDS_IN_2;
+               event.Event = MIDI_EVENT(0, SYSEX_ENDS_IN_2);
             else
-               event.Command = SYSEX_START_OR_CONT;
+               event.Event = MIDI_EVENT(0, SYSEX_START_OR_CONT);
             break;
          case 1:
             if (byte0 == SYSEX_END)
-               event.Command = SYSEX_ENDS_IN_1;
+               event.Event = MIDI_EVENT(0, SYSEX_ENDS_IN_1);
             else
-               event.Command = SYSEX_START_OR_CONT;
+               event.Event = MIDI_EVENT(0, SYSEX_START_OR_CONT);
             break;
          default:
             return; //invalid cnt
@@ -120,14 +123,14 @@ void usb_send_func(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byt
       //TODO are there any more?
       switch(byte0 & 0xF0){
          case MIDI_SONGPOSITION:
-            event.Command = SYS_COMMON_3;
+            event.Event = MIDI_EVENT(0, SYS_COMMON_3);
             break;
          case MIDI_SONGSELECT:
          case MIDI_TC_QUARTERFRAME:
-            event.Command = SYS_COMMON_2;
+            event.Event = MIDI_EVENT(0, SYS_COMMON_2);
             break;
          default:
-            event.Command = byte0 >> 4;
+            event.Event = MIDI_EVENT(0, byte0);
             break;
       }
    }
@@ -139,9 +142,6 @@ void usb_send_func(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byt
 }
 
 void usb_get_midi(MidiDevice * device) {
-   /* Select the MIDI OUT stream */
-   Endpoint_SelectEndpoint(MIDI_STREAM_OUT_EPNUM);
-
    MIDI_EventPacket_t event;
    while (MIDI_Device_ReceiveEventPacket(&USB_MIDI_Interface, &event)) {
 
