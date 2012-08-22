@@ -272,9 +272,9 @@ const USB_Descriptor_String_t PROGMEM ManufacturerString =
  */
 const USB_Descriptor_String_t PROGMEM ProductString =
 {
-	.Header                 = {.Size = USB_STRING_LEN(14), .Type = DTYPE_String},
+	.Header                 = {.Size = USB_STRING_LEN(8), .Type = DTYPE_String},
 
-	.UnicodeString          = L"LUFA MIDI Demo"
+	.UnicodeString          = L"xnormidi"
 };
 
 /** This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"
