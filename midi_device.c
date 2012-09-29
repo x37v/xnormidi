@@ -215,7 +215,11 @@ void midi_input_callbacks(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint
                      break;
                }
                if(func) {
-                  func(device, byte0, byte1, byte2);
+                  //mask off the channel for non song position functions
+                  if (byte0 == MIDI_SONGPOSITION)
+                     func(device, byte0, byte1, byte2);
+                  else
+                     func(device, byte0 & 0x0F, byte1, byte2);
                   called = true;
                }
             }
@@ -240,7 +244,11 @@ void midi_input_callbacks(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint
                      break;
                }
                if(func) {
-                  func(device, byte0, byte1);
+                  //mask off the channel
+                  if (byte0 == MIDI_SONGSELECT || byte0 == MIDI_TC_QUARTERFRAME)
+                     func(device, byte0, byte1);
+                  else
+                     func(device, byte0 & 0x0F, byte1);
                   called = true;
                }
             }
