@@ -2,44 +2,58 @@
 
 //forward declarations of callbacks
 void fallthrough_callback(MidiDevice * device,
-      uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
+    uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 void cc_callback(MidiDevice * device,
-      uint8_t chan, uint8_t num, uint8_t val);
+    uint8_t chan, uint8_t num, uint8_t val);
+void sysex_callback(MidiDevice * device,
+    uint16_t count, uint8_t byte0, uint8_t byte1, uint8_t byte2);
 
 int main(void) {
-   MidiDevice midi_device;
+  MidiDevice midi_device;
 
-   //setup the device
-   midi_usb_init(&midi_device);
+  //setup the device
+  midi_usb_init(&midi_device);
 
-   //register callbacks
-   midi_register_fallthrough_callback(&midi_device, fallthrough_callback);
-   midi_register_cc_callback(&midi_device, cc_callback);
+  //register callbacks
+  midi_register_fallthrough_callback(&midi_device, fallthrough_callback);
+  midi_register_cc_callback(&midi_device, cc_callback);
+  midi_register_sysex_callback(&midi_device, sysex_callback);
 
-   //send some messages
-   midi_send_cc(&midi_device, 0, 1, 2);
-   midi_send_noteon(&midi_device, 0, 64, 127);
-   midi_send_noteoff(&midi_device, 0, 64, 127);
+  //send some messages
+  midi_send_cc(&midi_device, 0, 1, 2);
+  midi_send_noteon(&midi_device, 0, 64, 127);
+  midi_send_noteoff(&midi_device, 0, 64, 127);
 
-   while(1){
-      //processes input from the midi device
-      //and calls the appropriate callbacks
-      midi_device_process(&midi_device);
-   }
+  while(1){
+    //processes input from the midi device
+    //and calls the appropriate callbacks
+    midi_device_process(&midi_device);
+  }
 
-   return 0; //never happens
+  return 0; //never happens
 }
 
 //echo data back
 void fallthrough_callback(MidiDevice * device,
-      uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
-   //pass the data back to the device, using the general purpose send data
-   //function, any bytes after cnt are ignored
-   midi_send_data(device, cnt, byte0, byte1, byte2);
+    uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2){
+  //pass the data back to the device, using the general purpose send data
+  //function, any bytes after cnt are ignored
 }
 
 void cc_callback(MidiDevice * device,
-      uint8_t chan, uint8_t num, uint8_t val) {
-   //sending it back on the next channel
-   midi_send_cc(device, (chan + 1) % 16, num, val);
+    uint8_t chan, uint8_t num, uint8_t val) {
+  //sending it back on the next channel
+  midi_send_cc(device, (chan + 1) % 16, num, val);
+}
+
+void sysex_callback(MidiDevice * device,
+    uint16_t count, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
+  const uint8_t start = ((count - 1) / 3) * 3;
+  const uint8_t length = (count - start);
+  int8_t data[3];
+  data[0] = byte0;
+  data[1] = byte1;
+  data[2] = byte2;
+  for (int i = 0; i < length; i++)
+    midi_send_cc(device, 15, 0x7F & data[i], 0x7F & (start + i));
 }

@@ -79,14 +79,14 @@ USB_ClassInfo_MIDI_Device_t USB_MIDI_Interface =
   },
 };
 
-#define SYSEX_START_OR_CONT 0x4
-#define SYSEX_ENDS_IN_1 0x5
-#define SYSEX_ENDS_IN_2 0x6
-#define SYSEX_ENDS_IN_3 0x7
+#define SYSEX_START_OR_CONT 0x40
+#define SYSEX_ENDS_IN_1 0x50
+#define SYSEX_ENDS_IN_2 0x60
+#define SYSEX_ENDS_IN_3 0x70
 
-#define SYS_COMMON_1 0x5
-#define SYS_COMMON_2 0x2
-#define SYS_COMMON_3 0x3
+#define SYS_COMMON_1 0x50
+#define SYS_COMMON_2 0x20
+#define SYS_COMMON_3 0x30
 
 void usb_send_func(MidiDevice * device, uint16_t cnt, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
   MIDI_EventPacket_t event;
