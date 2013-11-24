@@ -376,20 +376,10 @@ void midi_register_tunerequest_callback(MidiDevice * device, midi_one_byte_func_
 /**
  * @brief Register a sysex callback.
  *
- * This callback works differently than the others because we don't know how
- * long the sysex messages are going to be.  The count given to the associated
- * callback function is the running count of the bytes associated with this
- * sysex message.  The callback is called in increments of 3 or less.
- *
- * As an example, if you had the sysex message 0xF0 0x00 0x01 0x02 0xF7
- * the callback would be called twice:
- * func(device, 3, 0xF0, 0x00, 0x01)
- * func(device, 5, 0x02, 0xF7, 0x00)
- * 
  * @param device the device associate with
  * @param func the callback function to register
  */
-void midi_register_sysex_callback(MidiDevice * device, midi_var_byte_func_t func);
+void midi_register_sysex_callback(MidiDevice * device, midi_sysex_func_t func);
 
 /**
  * @brief Register fall through callback.

@@ -6,7 +6,7 @@ void fallthrough_callback(MidiDevice * device,
 void cc_callback(MidiDevice * device,
     uint8_t chan, uint8_t num, uint8_t val);
 void sysex_callback(MidiDevice * device,
-    uint16_t count, uint8_t byte0, uint8_t byte1, uint8_t byte2);
+    uint16_t start, uint8_t length, uint8_t * data);
 
 int main(void) {
   MidiDevice midi_device;
@@ -47,13 +47,7 @@ void cc_callback(MidiDevice * device,
 }
 
 void sysex_callback(MidiDevice * device,
-    uint16_t count, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
-  const uint8_t start = ((count - 1) / 3) * 3;
-  const uint8_t length = (count - start);
-  int8_t data[3];
-  data[0] = byte0;
-  data[1] = byte1;
-  data[2] = byte2;
+    uint16_t start, uint8_t length, uint8_t * data) {
   for (int i = 0; i < length; i++)
     midi_send_cc(device, 15, 0x7F & data[i], 0x7F & (start + i));
 }

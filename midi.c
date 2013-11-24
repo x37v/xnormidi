@@ -263,7 +263,7 @@ void midi_register_tunerequest_callback(MidiDevice * device, midi_one_byte_func_
    device->input_tunerequest_callback = func;
 }
 
-void midi_register_sysex_callback(MidiDevice * device, midi_var_byte_func_t func){
+void midi_register_sysex_callback(MidiDevice * device, midi_sysex_func_t func) {
    device->input_sysex_callback = func;
 }
 

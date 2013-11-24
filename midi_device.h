@@ -91,8 +91,8 @@ struct _midi_device {
    midi_one_byte_func_t input_realtime_callback;
    midi_one_byte_func_t input_tunerequest_callback;
 
-   //sysex, cnt is the count of bytes in the sysex message
-   midi_var_byte_func_t input_sysex_callback;
+   //sysex
+   midi_sysex_func_t input_sysex_callback;
 
    //only called if more specific callback is not matched
    midi_var_byte_func_t input_fallthrough_callback;
